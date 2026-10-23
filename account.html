@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" data-bundle-two="15" data-bundle-three="25">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+<title>My Account | Mystery Bakebite</title>
+<meta name="description" content="Sign in or create your Mystery Bakebite customer account to place bakery orders, reserve baking classes and follow your order history.">
+<meta name="theme-color" content="#2B1608">
+<meta property="og:type" content="website">
+<meta property="og:title" content="My Account | Mystery Bakebite">
+<meta property="og:description" content="Sign in or create your Mystery Bakebite customer account to place bakery orders, reserve baking classes and follow your order history.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preload" href="assets/fonts/PlayfairDisplay-normal-400_800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/GreatVibes-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/styles.css?v=49">
+<script>document.documentElement.className='js';</script>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="Mystery Bakebite, home">
+        <img class="brand__logo" src="assets/img/logo.webp" width="92" height="92" alt="Mystery Bakebite circular badge logo">
+        <span class="brand__text">
+          <span class="brand__name">Mystery Bakebite</span>
+          <span class="brand__sub">Baking &middot; Training &middot; Creative</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="classes.html">Classes</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact Us</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn--gold nav-cta" href="https://wa.me/233554520532?text=Hello%20Mystery%20Bakebite%2C%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.2-1.3c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.6 13.5 3.6 12 3.6 7.4 7.4 3.6 12 3.6S20.4 7.4 20.4 12 16.6 20.2 12 20.2z"/></svg>
+          WhatsApp
+        </a>
+        <a class="signin-link" href="admin.html" aria-label="Open the baker dashboard" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/><path d="M12 14v2.5"/></svg>
+          <span>SIGN-IN</span>
+        </a>
+        <button type="button" class="cart-btn" data-cart-open aria-label="Open cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 6h15l-1.6 9.4a2 2 0 01-2 1.6H9.3a2 2 0 01-2-1.7L6 6z"/><path d="M6 6L5 2.6H2"/><circle cx="9.5" cy="20.4" r="1.5"/><circle cx="17.5" cy="20.4" r="1.5"/></svg>
+          <span class="cart-btn__count is-empty" data-cart-count>0</span>
+        </button>
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <nav aria-label="Mobile">
+    <ul class="mobile-menu__list">
+      <li><a href="index.html">Home <span>01</span></a></li>
+      <li><a href="menu.html">Menu <span>02</span></a></li>
+      <li><a href="classes.html">Classes <span>03</span></a></li>
+      <li><a href="products.html">Products <span>04</span></a></li>
+      <li><a href="contact.html">Contact Us <span>05</span></a></li>
+      <li><a href="account.html">My Account <span>06</span></a></li>
+    </ul>
+  </nav>
+  <div class="mobile-menu__foot">
+    <a class="btn btn--gold" href="products.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 6h15l-1.6 9.4a2 2 0 01-2 1.6H9.3a2 2 0 01-2-1.7L6 6z"/><path d="M6 6L5 2.6H2"/><circle cx="9.5" cy="20.4" r="1.5"/><circle cx="17.5" cy="20.4" r="1.5"/></svg>
+      Browse Products
+    </a>
+    <a class="btn btn--ghost btn--sm" href="admin.html" data-mobile-auth="true" style="justify-content:center" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/><path d="M12 14v2.5"/></svg>
+      SIGN-IN
+    </a>
+    <p class="mobile-menu__meta">Monday to Sunday, 8:00am &ndash; 7:00pm &middot; Tamale, Ghana<br>
+      <a href="mailto:mysterybakebite@gmail.com">mysterybakebite@gmail.com</a></p>
+  </div>
+</div>
+
+<main id="main">
+<section class="page-hero page-hero--compact">
+  <div class="page-hero__bg" aria-hidden="true">
+    <img src="assets/img/hero-orders.webp" alt="" style="object-position:50% 40%">
+  </div>
+  <div class="container page-hero__inner">
+    <p class="eyebrow">Customer Account</p>
+    <h1>Your Orders, Held Together.</h1>
+    <p class="lead">Sign in to place bakery orders and reserve baking classes, follow every payment and preparation update, and keep your receipts in one place. Browsing the menu never needs an account.</p>
+  </div>
+</section>
+
+<section class="section section--dark section--tight">
+  <div class="container">
+
+    <noscript>
+      <div class="alert alert--warn" style="margin-bottom:1rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        <span>Signing in needs JavaScript. Enable it, or message us on WhatsApp and we will take your order directly.</span>
+      </div>
+    </noscript>
+
+    <div id="acct-loading" class="acct-empty">Checking your account…</div>
+
+    <div id="acct-alert" hidden></div>
+
+    <!-- ============ SIGNED OUT: sign in / register / reset ============ -->
+    <div id="acct-auth" hidden>
+      <div class="acct-tabs" role="tablist" aria-label="Account access">
+        <button type="button" class="acct-tab is-on" id="tab-signin" role="tab" aria-selected="true" aria-controls="acct-signin-panel" data-acct-tab="signin">Sign in</button>
+        <button type="button" class="acct-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="acct-register-panel" data-acct-tab="register">Create account</button>
+      </div>
+
+      <div class="acct-grid">
+        <!-- sign in -->
+        <div class="panel" id="acct-signin-panel" role="tabpanel" aria-labelledby="tab-signin">
+          <h2>Welcome back</h2>
+          <p class="panel__hint">Use the email and password you registered with. Orders and class bookings stay linked to this account.</p>
+          <form id="acct-signin-form" novalidate>
+            <div class="field">
+              <label for="acct-signin-email">Email address</label>
+              <input type="email" id="acct-signin-email" name="email" autocomplete="email" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="acct-signin-password">Password</label>
+              <input type="password" id="acct-signin-password" name="password" autocomplete="current-password" required placeholder="Your password">
+            </div>
+            <label class="acct-check" style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:rgba(245,230,214,.65);margin-bottom:1rem">
+              <input type="checkbox" id="acct-remember" checked style="width:auto;margin:0">
+              Keep me signed in on this device
+            </label>
+            <button type="submit" class="btn btn--gold" id="acct-signin-submit" style="justify-content:center;width:100%">Sign in</button>
+          </form>
+          <p class="acct-help">Forgot your password? <a href="#acct-reset-panel" data-acct-show-reset>Reset it by email</a>.</p>
+          <p class="acct-help">Need to confirm your email address? <button type="button" class="acct-inline-link" data-acct-resend style="appearance:none;background:none;border:0;padding:0;color:var(--caramel);font:inherit;text-decoration:underline;cursor:pointer">Send the confirmation link again</button>.</p>
+        </div>
+
+        <!-- register -->
+        <div class="panel" id="acct-register-panel" role="tabpanel" aria-labelledby="tab-register" hidden>
+          <h2>Create your account</h2>
+          <p class="panel__hint">An account is needed to place an order or book a class. It takes a minute, and your cart is kept while you sign up.</p>
+          <div class="acct-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span>We email you a confirmation link once. Verify the address before ordering so receipts and updates reach the right inbox.</span>
+          </div>
+          <form id="acct-register-form" novalidate>
+            <div class="field">
+              <label for="acct-reg-fullname">Full name</label>
+              <input type="text" id="acct-reg-fullname" name="fullName" autocomplete="name" required maxlength="120" placeholder="How should we address you?">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="acct-reg-email">Email address</label>
+                <input type="email" id="acct-reg-email" name="email" autocomplete="email" required placeholder="you@example.com">
+              </div>
+              <div class="field">
+                <label for="acct-reg-phone">Phone number</label>
+                <input type="tel" id="acct-reg-phone" name="phone" autocomplete="tel" required placeholder="0XX XXX XXXX">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="acct-reg-password">Password</label>
+                <input type="password" id="acct-reg-password" name="password" autocomplete="new-password" required placeholder="At least 10 characters">
+              </div>
+              <div class="field">
+                <label for="acct-reg-confirm">Confirm password</label>
+                <input type="password" id="acct-reg-confirm" name="passwordConfirm" autocomplete="new-password" required placeholder="Repeat password">
+              </div>
+            </div>
+            <p class="acct-strong" id="acct-strength" aria-live="polite">Use 10+ characters with upper and lower case letters and a number.</p>
+            <button type="submit" class="btn btn--gold" id="acct-register-submit" style="justify-content:center;width:100%">Create account</button>
+          </form>
+          <p class="acct-help">Already registered? <a href="#acct-signin-panel" data-acct-show-signin>Sign in instead</a>. If the address was used before, we simply send another confirmation link.</p>
+        </div>
+      </div>
+
+      <!-- reset -->
+      <div class="panel" id="acct-reset-panel" style="margin-top:clamp(14px,2vw,20px)">
+        <h2>Reset your password</h2>
+        <p class="panel__hint" id="acct-reset-intro">Enter your email address and we will send a single-use reset link. For your security, the same message appears whether or not the address is registered.</p>
+        <form id="acct-reset-form" novalidate>
+          <div class="field">
+            <label for="acct-reset-email">Email address</label>
+            <input type="email" id="acct-reset-email" name="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
+          <button type="submit" class="btn btn--ghost" id="acct-reset-submit">Email me a reset link</button>
+        </form>
+
+        <form id="acct-newpassword-form" hidden novalidate>
+          <div class="field">
+            <label for="acct-new-password">New password</label>
+            <input type="password" id="acct-new-password" name="newPassword" autocomplete="new-password" required placeholder="At least 10 characters">
+          </div>
+          <div class="field">
+            <label for="acct-new-confirm">Confirm new password</label>
+            <input type="password" id="acct-new-confirm" name="newPasswordConfirm" autocomplete="new-password" required placeholder="Repeat new password">
+          </div>
+          <button type="submit" class="btn btn--gold" id="acct-newpassword-submit">Save new password</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============ SIGNED IN: account area ============ -->
+    <div id="acct-dashboard" hidden>
+      <div class="account-bar" style="margin-bottom:clamp(16px,2.2vw,22px)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0115 0"/></svg>
+        <span class="account-bar__text" id="acct-welcome">Signed in</span>
+        <button type="button" class="account-bar__link account-bar__link--button" data-auth-logout>Sign out</button>
+      </div>
+
+      <div class="acct-grid">
+        <!-- profile -->
+        <div class="panel">
+          <h2>Your details</h2>
+          <p class="panel__hint">We use these only to prepare and hand over your orders and class bookings.</p>
+          <div class="acct-row" style="margin-bottom:1.1rem">
+            <div class="acct-identity">
+              <span class="acct-avatar" id="acct-avatar" aria-hidden="true">M</span>
+              <span>
+                <strong id="acct-name-display">Customer</strong>
+                <span id="acct-email-display"></span>
+              </span>
+            </div>
+            <span class="acct-chip" id="acct-verify-chip">Unverified</span>
+          </div>
+
+          <div id="acct-verify-banner" class="acct-note" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span id="acct-verify-text">Confirm your email address to place orders.</span>
+          </div>
+
+          <form id="acct-profile-form" novalidate>
+            <div class="field">
+              <label for="acct-fullname">Full name</label>
+              <input type="text" id="acct-fullname" name="fullName" autocomplete="name" required maxlength="120">
+            </div>
+            <div class="field">
+              <label for="acct-phone">Phone number</label>
+              <input type="tel" id="acct-phone" name="phone" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="acct-email">Email (verified sign-in address)</label>
+              <input type="email" id="acct-email" name="email" readonly aria-readonly="true">
+            </div>
+            <button type="submit" class="btn btn--gold" id="acct-profile-submit">Save details</button>
+          </form>
+
+          <p class="acct-help" style="margin-top:1.2rem">
+            Change your password from the <a href="#acct-password-panel">account security</a> panel below.
+          </p>
+        </div>
+
+        <!-- security -->
+        <div class="panel" id="acct-password-panel">
+          <h2>Account security</h2>
+          <p class="panel__hint">Your password is managed by Supabase Auth. It is never stored in this website, in local storage or in the bakery database.</p>
+          <form id="acct-password-form" novalidate>
+            <div class="field">
+              <label for="acct-cur-password">New password</label>
+              <input type="password" id="acct-cur-password" name="newPassword" autocomplete="new-password" required placeholder="At least 10 characters">
+            </div>
+            <div class="field">
+              <label for="acct-cur-confirm">Confirm new password</label>
+              <input type="password" id="acct-cur-confirm" name="newPasswordConfirm" autocomplete="new-password" required placeholder="Repeat new password">
+            </div>
+            <button type="submit" class="btn btn--ghost" id="acct-password-submit">Update password</button>
+          </form>
+          <p class="acct-help">
+            A reset link can also be sent from the <a href="#" data-acct-signout-reset>sign-in screen</a> after signing out.
+          </p>
+        </div>
+      </div>
+
+      <!-- orders -->
+      <div class="panel" id="acct-orders-panel" style="margin-top:clamp(14px,2vw,20px)">
+        <div class="acct-row">
+          <div>
+            <h2>Product orders</h2>
+            <p class="panel__hint" style="margin-bottom:0">Each order keeps the price you agreed, the date you asked for and its own payment status.</p>
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm" id="acct-refresh-orders">Refresh</button>
+        </div>
+        <div id="acct-orders-list" aria-live="polite"></div>
+      </div>
+
+      <!-- bookings -->
+      <div class="panel" id="acct-bookings-panel">
+        <div class="acct-row">
+          <div>
+            <h2>Class bookings</h2>
+            <p class="panel__hint" style="margin-bottom:0">Baking classes are booked separately from product orders, with their own reference and fee.</p>
+          </div>
+          <a class="btn btn--ghost btn--sm" href="classes.html">Browse classes</a>
+        </div>
+        <div id="acct-bookings-list" aria-live="polite"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="brand" href="index.html" aria-label="Mystery Bakebite, home">
+          <img class="brand__logo" src="assets/img/logo.webp" width="112" height="112" alt="Mystery Bakebite circular badge logo">
+          <span class="brand__text">
+            <span class="brand__name">Mystery Bakebite</span>
+            <span class="brand__sub">Baking &middot; Training &middot; Creative</span>
+          </span>
+        </a>
+        <p class="footer__slogan">Unveiling The Uniqueness of A Recipe</p>
+        <p class="footer__promise">Because every bite has a story.</p>
+        <p class="footer__desc">
+          A home bakery and practical baking school in Tamale, Northern Region, Ghana.
+          Cakes, doughnuts, slices, loaves, cookies, cupcakes, parfait and savoury treats
+          made to order, and hands-on bread and pastry classes.
+        </p>
+      </div>
+
+      <nav class="footer__col" aria-label="Footer">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="classes.html">Classes</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="account.html">My Account</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer__col">
+        <h4>Get in touch</h4>
+        <ul class="footer__contact">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 006.5 6.5L17 13l4 1.5v3a2 2 0 01-2.2 2A17 17 0 014 5.2 2 2 0 016.5 3z"/></svg>
+            <a href="https://wa.me/233554520532" target="_blank" rel="noopener noreferrer" aria-label="Chat with Mystery Bakebite on WhatsApp">+233 55 452 0532</a>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+            <a href="mailto:mysterybakebite@gmail.com" aria-label="Email Mystery Bakebite">mysterybakebite@gmail.com</a>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <a href="https://www.instagram.com/mysterybakebites/" target="_blank" rel="noopener noreferrer" aria-label="Mystery Bakebite on Instagram">@mysterybakebites</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4>Visit &amp; hours</h4>
+        <p>Monday to Sunday<br>8:00am &ndash; 7:00pm</p>
+        <p style="margin-top:.7rem">Tamale, Northern Region, Ghana</p>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p class="legal">
+        &copy; <span id="year">2026</span> Mystery Bakebite &middot; Home bakery &middot; Baking school &middot; Tamale, Ghana.
+      </p>
+      <a class="footer__top" href="#top">
+        Back to top
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/config.js?v=49" defer></script>
+<script src="assets/js/supabase.js?v=49" defer></script>
+<script src="assets/js/main.js?v=49" defer></script>
+<script src="assets/js/cart.js?v=49" defer></script>
+<script src="assets/js/pay.js?v=49" defer></script>
+<script src="assets/js/account.js?v=49" defer></script>
+<div class="cart-drawer" id="cart-drawer" data-scope="product" aria-hidden="true">
+  <aside class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="cart-head">
+      <h2 id="cart-title">Your product cart</h2>
+      <span class="cart-head__count"><span data-cart-count>0</span> <span data-cart-word>items</span></span>
+      <button type="button" class="cart-close" data-cart-close aria-label="Close cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <p class="cart-kindline">Bakery products only. Classes are booked separately and never share this cart.</p>
+
+    <div class="cart-items" id="cart-items"></div>
+
+    <div class="cart-foot" id="cart-footer">
+      <div class="cart-subtotal">
+        <span>Estimated subtotal</span>
+        <b id="cart-subtotal">GH&#8373; 0.00</b>
+      </div>
+      <p class="cart-quote-note" id="cart-quote-note" hidden>
+        Some items are priced by the baker. Those are confirmed before baking and are not included in the subtotal.
+      </p>
+      <a class="btn btn--gold" href="checkout.html" data-cart-send style="justify-content:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Checkout product order
+      </a>
+      <p class="cart-other" data-cart-other hidden></p>
+      <a class="btn btn--ghost btn--sm" href="https://wa.me/233554520532?text=Hello%20Mystery%20Bakebite%2C%20I%27d%20like%20to%20ask%20about%20a%20product%20order." target="_blank" rel="noopener noreferrer" style="justify-content:center;margin-top:8px">
+        Or ask on WhatsApp
+      </a>
+      <div class="cart-foot__row">
+        <a class="btn btn--ghost btn--sm" href="products.html">Keep shopping</a>
+        <button type="button" class="btn btn--ghost btn--sm" data-cart-clear>Clear</button>
+      </div>
+      <p class="cart-note">No payment is taken on this website. Checkout gives you a product order reference and a receipt, and the baker confirms every order personally.</p>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="cart-toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>

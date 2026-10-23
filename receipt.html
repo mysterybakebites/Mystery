@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+<title>Official Order Receipt | Mystery Bakebite</title>
+<meta name="description" content="Official Mystery Bakebite order receipt (ISO A6 105mm × 148mm), downloaded automatically to your device.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2B1608">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="preload" href="assets/fonts/PlayfairDisplay-normal-400_800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/PlayfairDisplay-italic-400_700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/GreatVibes-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/styles.css?v=51">
+<link rel="stylesheet" href="assets/css/receipt.css?v=51">
+<script>document.documentElement.className='js';</script>
+</head>
+<body class="receipt-page">
+<main class="receipt">
+  <div class="receipt__bar" id="receipt-bar" hidden>
+    <a class="receipt__back" href="order.html" id="receipt-back" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to the order</span>
+    </a>
+    <div class="receipt__actions">
+      <span class="receipt__size-pill" title="Formatted for ISO A6 paper (105mm × 148mm)">Order Receipt &middot; A6 (105 &times; 148 mm)</span>
+      <button type="button" class="btn btn--gold btn--sm" id="receipt-print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        Download Order Receipt PDF
+      </button>
+    </div>
+  </div>
+
+  <p class="receipt__state" id="receipt-state" role="status">Loading your official Mystery Bakebite order receipt…</p>
+
+  <article class="paper" id="receipt-paper" hidden>
+    <div class="paper__crown" aria-hidden="true"></div>
+    <img class="paper__watermark" src="assets/img/logo.webp" alt="" aria-hidden="true">
+
+    <header class="paper__head">
+      <div class="paper__identity">
+        <div class="paper__logo-frame">
+          <img class="paper__logo" src="assets/img/logo.webp" width="84" height="84" alt="Mystery Bakebite official circular badge logo">
+        </div>
+        <div class="paper__brand-block">
+          <p class="paper__eyebrow">Baking &middot; Training &middot; Creative</p>
+          <p class="paper__brand">Mystery Bakebite</p>
+          <p class="paper__script">Unveiling The Uniqueness of A Recipe</p>
+          <p class="paper__tag">Artisan Home Bakery &amp; Practical Baking School &middot; Tamale, Northern Region, Ghana</p>
+        </div>
+      </div>
+
+      <div class="paper__type">
+        <span class="paper__kind" id="receipt-kind">Official Receipt</span>
+        <div class="paper__ref-box">
+          <span class="paper__ref-lbl">Receipt / Reference No.</span>
+          <p class="paper__ref mono" id="receipt-ref"></p>
+        </div>
+        <div class="paper__stamps" id="receipt-stamps"></div>
+      </div>
+    </header>
+
+    <div class="paper__body">
+      <div class="paper__ornament" aria-hidden="true">
+        <span></span><i>&#10022;</i><span></span>
+      </div>
+
+      <section class="paper__meta" id="receipt-meta" aria-label="Customer and order information"></section>
+
+      <section class="paper__items-sec" aria-label="Purchased items">
+        <div class="paper__sec-head">
+          <h2 class="paper__h2" id="receipt-items-title">Order Line Items &amp; Specifications</h2>
+          <span class="paper__sec-count" id="receipt-items-count"></span>
+        </div>
+        <div class="paper__table-wrap">
+          <table class="paper__items">
+            <thead>
+              <tr>
+                <th scope="col">Item &amp; Specification</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col">Line Total</th>
+              </tr>
+            </thead>
+            <tbody id="receipt-items"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="paper__summary-grid">
+        <section class="paper__pay" id="receipt-pay" aria-label="Payment and verification details"></section>
+        <section class="paper__totals" id="receipt-totals" aria-label="Financial summary"></section>
+      </div>
+
+      <footer class="paper__foot">
+        <div class="paper__foot-main">
+          <div class="paper__seal">
+            <img src="assets/img/logo.webp" width="44" height="44" alt="" aria-hidden="true">
+            <div>
+              <strong>Authentic Mystery Bakebite Document</strong>
+              <span>Because every bite has a story &middot; Tamale, Ghana</span>
+            </div>
+          </div>
+          <div class="paper__foot-contact-wrap">
+            <p class="paper__contact" id="receipt-foot-contact"></p>
+            <p class="paper__fine" id="receipt-foot-note"></p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </article>
+
+  <noscript>
+    <p class="alert alert--warn">This receipt is built in your browser. Turn JavaScript on to view and print it.</p>
+  </noscript>
+</main>
+<script src="assets/js/config.js?v=50" defer></script>
+<script src="assets/js/supabase.js?v=50" defer></script>
+<script src="assets/js/receipt.js?v=50" defer></script>
+</body>
+</html>

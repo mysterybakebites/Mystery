@@ -1,0 +1,981 @@
+/* ============================================================================
+   Mystery Bakebite · Official Branded A6 Receipt & Booking Statement
+   Dimensions: Exact ISO A6 Portrait (105mm × 148mm / ~397px × 559px at 96 DPI)
+   Screen: Rich espresso backdrop framing an authentic 105mm × 148mm ivory-and-gold
+           A6 statement with the official circular badge logo, status stamps,
+           itemized table, discount & delivery breakdown, and bakery seal.
+   Print:  Exact single-page A6 document (@page { size: 105mm 148mm; margin: 0; })
+           with full color preservation and zero page-spill.
+   ========================================================================== */
+
+@page {
+  size: 105mm 148mm;
+  margin: 0;
+}
+
+.receipt-page {
+  background:
+    radial-gradient(85% 60% at 50% 0%, rgba(212, 164, 55, .16), transparent 65%),
+    radial-gradient(70% 50% at 85% 100%, rgba(247, 183, 200, .1), transparent 60%),
+    linear-gradient(180deg, #211004 0%, #190B02 100%);
+  color: #2B1608;
+  min-height: 100vh;
+  padding: clamp(.9rem, 2.5vw, 1.8rem) .75rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.receipt {
+  width: 105mm;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ---------- Top Action Bar (Screen Only) ---------- */
+.receipt__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: .85rem;
+  padding: .55rem .75rem;
+  border-radius: 12px;
+  background: rgba(245, 230, 214, .07);
+  border: 1px solid rgba(212, 164, 55, .32);
+  backdrop-filter: blur(10px);
+}
+
+.receipt__back {
+  display: inline-flex;
+  align-items: center;
+  gap: .38rem;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(245, 230, 214, .9);
+  text-decoration: none;
+  padding: .35rem .65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 230, 214, .2);
+  background: rgba(245, 230, 214, .05);
+  transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.receipt__back svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.receipt__back:hover {
+  color: #FFFBF5;
+  border-color: rgba(212, 164, 55, .6);
+  background: rgba(212, 164, 55, .14);
+  transform: translateX(-2px);
+}
+
+.receipt__actions {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  flex-wrap: wrap;
+}
+
+.receipt__size-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: .24rem .52rem;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #FFE08C;
+  background: rgba(212, 164, 55, .15);
+  border: 1px solid rgba(212, 164, 55, .38);
+}
+
+.receipt__actions .btn {
+  padding: .38rem .72rem;
+  min-height: 32px;
+  font-size: .72rem;
+}
+
+.receipt__actions .btn svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.receipt__state {
+  background: rgba(255, 251, 245, .95);
+  border: 1px solid rgba(212, 164, 55, .42);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  color: #2B1608;
+  font-size: .85rem;
+  text-align: center;
+  box-shadow: 0 14px 34px rgba(8, 3, 0, .35);
+}
+
+/* ---------- A6 Branded Paper Sheet (105mm × 148mm) ---------- */
+.paper[hidden] {
+  display: none !important;
+}
+
+.paper {
+  position: relative;
+  width: 105mm;
+  min-height: 148mm;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFFDF9 0%, #FDF7EE 100%);
+  border: 1px solid rgba(212, 164, 55, .52);
+  border-radius: 10px;
+  box-shadow:
+    0 24px 60px rgba(8, 3, 0, .58),
+    0 0 0 1px rgba(255, 251, 245, .65) inset;
+  color: #2B1608;
+  isolation: isolate;
+}
+
+.paper__crown {
+  height: 1.2mm;
+  width: 100%;
+  flex: none;
+  background: linear-gradient(90deg, #8B5E3C 0%, #D4A437 32%, #F7B7C8 55%, #D4A437 78%, #8B5E3C 100%);
+}
+
+.paper__watermark {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  width: 56mm;
+  height: 56mm;
+  transform: translate(-50%, -50%);
+  opacity: .035;
+  pointer-events: none;
+  z-index: 0;
+  filter: grayscale(20%);
+}
+
+/* ---------- Compact Espresso & Gold A6 Header ---------- */
+.paper__head {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5mm;
+  background:
+    radial-gradient(80% 120% at 12% 15%, rgba(212, 164, 55, .24), transparent 60%),
+    linear-gradient(135deg, #2B1608 0%, #3A1E0B 58%, #241105 100%);
+  color: #FFFBF5;
+  padding: 3.2mm 4.2mm;
+  border-bottom: 1.5px solid #D4A437;
+}
+
+.paper__identity {
+  display: flex;
+  align-items: center;
+  gap: 2.4mm;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.paper__logo-frame {
+  width: 11.5mm;
+  height: 11.5mm;
+  border-radius: 50%;
+  padding: 1.5px;
+  background: linear-gradient(145deg, #F3D27A, #C58F24);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .4), 0 0 0 1.5px rgba(212, 164, 55, .24);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paper__logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #231105;
+}
+
+.paper__brand-block {
+  min-width: 0;
+}
+
+.paper__eyebrow {
+  margin: 0 0 .3mm;
+  font-size: 4.8pt;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #E7BC5A;
+  line-height: 1.1;
+}
+
+.paper__brand {
+  font-family: var(--serif, "Playfair Display", Georgia, serif);
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: #FFFBF5;
+  line-height: 1.08;
+  margin: 0;
+}
+
+.paper__script {
+  font-family: var(--script, "Great Vibes", cursive);
+  font-size: 8.2pt;
+  color: #F7B7C8;
+  margin: .2mm 0;
+  line-height: 1.1;
+}
+
+.paper__tag {
+  margin: 0;
+  font-size: 5pt;
+  letter-spacing: .01em;
+  color: rgba(245, 230, 214, .76);
+  line-height: 1.2;
+}
+
+.paper__type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1mm;
+  text-align: right;
+  flex: none;
+}
+
+.paper__kind {
+  display: inline-block;
+  padding: .6mm 2mm;
+  border-radius: 999px;
+  font-size: 4.8pt;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #231105;
+  background: linear-gradient(180deg, #ECC362, #CFA035);
+  line-height: 1.1;
+}
+
+.paper__ref-box {
+  padding: .9mm 2.2mm;
+  border-radius: 5px;
+  background: rgba(255, 251, 245, .08);
+  border: 1px solid rgba(212, 164, 55, .45);
+}
+
+.paper__ref-lbl {
+  display: block;
+  font-size: 4.5pt;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: rgba(245, 230, 214, .68);
+  margin-bottom: .2mm;
+  line-height: 1;
+}
+
+.paper__ref {
+  margin: 0;
+  font-size: 8.2pt;
+  font-weight: 800;
+  color: #FFE08C;
+  letter-spacing: .04em;
+  line-height: 1.1;
+}
+
+.paper__stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8mm;
+  justify-content: flex-end;
+}
+
+/* Status Stamps */
+.r-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: .8mm;
+  padding: .5mm 1.6mm;
+  border-radius: 999px;
+  font-size: 4.7pt;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  line-height: 1.1;
+}
+
+.r-stamp__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.r-stamp--verified {
+  background: rgba(46, 133, 64, .24);
+  color: #98F2B0;
+  border-color: rgba(122, 224, 149, .5);
+}
+
+.r-stamp--review {
+  background: rgba(58, 123, 213, .24);
+  color: #A8D1FF;
+  border-color: rgba(130, 184, 255, .5);
+}
+
+.r-stamp--pending {
+  background: rgba(212, 164, 55, .24);
+  color: #FFE08C;
+  border-color: rgba(212, 164, 55, .55);
+}
+
+.r-stamp--rejected {
+  background: rgba(214, 69, 69, .24);
+  color: #FFB3B3;
+  border-color: rgba(242, 130, 130, .55);
+}
+
+.r-stamp--neutral {
+  background: rgba(245, 230, 214, .14);
+  color: #F5E6D6;
+  border-color: rgba(245, 230, 214, .3);
+}
+
+/* ---------- Receipt Inner Body (A6 Proportioned) ---------- */
+.paper__body {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5mm 4.2mm 2.8mm;
+  box-sizing: border-box;
+}
+
+.paper__ornament {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  margin-bottom: 1.8mm;
+  color: #C59227;
+  font-size: 6pt;
+  line-height: 1;
+}
+
+.paper__ornament span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(197, 146, 39, .45), transparent);
+}
+
+.paper__ornament i {
+  font-style: normal;
+  line-height: 1;
+}
+
+/* ---------- Customer & Order Info 2×2 Compact Grid ---------- */
+.paper__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.6mm;
+  margin: 0 0 2.2mm;
+}
+
+.paper__pair {
+  margin: 0;
+  padding: 1.5mm 2.2mm;
+  border-radius: 5px;
+  background: rgba(43, 22, 8, .03);
+  border: 1px solid rgba(43, 22, 8, .09);
+  min-width: 0;
+}
+
+.paper__pair dt {
+  font-size: 4.8pt;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #7A542E;
+  margin: 0 0 .4mm;
+  line-height: 1.1;
+}
+
+.paper__pair dd {
+  margin: 0;
+  font-size: 6.4pt;
+  font-weight: 700;
+  color: #231105;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.paper__pair dd small {
+  display: block;
+  font-size: 5.4pt;
+  font-weight: 500;
+  color: #6B4D35;
+  margin-top: .25mm;
+  line-height: 1.2;
+}
+
+/* ---------- Items Section & Table ---------- */
+.paper__items-sec {
+  margin-bottom: 2.2mm;
+}
+
+.paper__sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2mm;
+  margin-bottom: 1mm;
+}
+
+.paper__h2 {
+  font-size: 5.3pt;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin: 0;
+  color: #6B4722;
+  font-family: var(--sans, system-ui, -apple-system, sans-serif);
+  line-height: 1.1;
+}
+
+.paper__sec-count {
+  font-size: 5.3pt;
+  font-weight: 700;
+  color: #8A6416;
+}
+
+.paper__table-wrap {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(43, 22, 8, .15);
+  background: rgba(255, 255, 255, .78);
+}
+
+.paper__items {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 6.3pt;
+}
+
+.paper__items thead tr {
+  background: linear-gradient(90deg, #2B1608, #3B200D);
+  color: #F5E6D6;
+}
+
+.paper__items th {
+  text-align: left;
+  font-size: 4.9pt;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: #ECC362;
+  font-weight: 800;
+  padding: 1.3mm 2mm;
+  line-height: 1.1;
+}
+
+.paper__items th:not(:first-child),
+.paper__items td:not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.paper__items td {
+  padding: 1.4mm 2mm;
+  border-bottom: 1px solid rgba(43, 22, 8, .08);
+  vertical-align: top;
+  color: #231105;
+  line-height: 1.22;
+}
+
+.paper__items tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.paper__items tbody tr:nth-child(even) {
+  background: rgba(212, 164, 55, .04);
+}
+
+.paper__item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4mm;
+}
+
+.paper__item-idx {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.8mm;
+  height: 3.8mm;
+  border-radius: 3px;
+  background: rgba(212, 164, 55, .18);
+  border: 1px solid rgba(212, 164, 55, .42);
+  color: #6B4722;
+  font-size: 4.8pt;
+  font-weight: 800;
+  flex: none;
+  margin-top: .15mm;
+}
+
+.paper__item {
+  display: block;
+  font-weight: 700;
+  color: #231105;
+  line-height: 1.2;
+}
+
+.paper__item-meta {
+  display: block;
+  font-size: 5.4pt;
+  color: #6B4D35;
+  margin-top: .2mm;
+  line-height: 1.2;
+}
+
+.paper__item-disc {
+  display: inline-block;
+  margin-top: .4mm;
+  padding: .2mm 1.2mm;
+  border-radius: 999px;
+  font-size: 4.6pt;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba(46, 133, 64, .12);
+  color: #1F6E32;
+  border: 1px solid rgba(46, 133, 64, .28);
+}
+
+.paper__qty-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.4mm;
+  height: 3.8mm;
+  padding: 0 1mm;
+  border-radius: 999px;
+  background: rgba(43, 22, 8, .06);
+  font-weight: 700;
+  font-size: 5.8pt;
+  color: #231105;
+}
+
+.paper__old-line {
+  display: block;
+  font-size: 5pt;
+  color: #8C735B;
+  text-decoration: line-through;
+}
+
+.paper__net-line {
+  font-weight: 700;
+  color: #231105;
+}
+
+/* ---------- Payment & Financial Summary Side-by-Side A6 Grid ---------- */
+.paper__summary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  gap: 2.2mm;
+  align-items: stretch;
+  margin-bottom: 2mm;
+}
+
+.paper__pay {
+  padding: 2mm 2.4mm;
+  border-radius: 6px;
+  background: rgba(43, 22, 8, .035);
+  border: 1px solid rgba(43, 22, 8, .11);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.paper__pay-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2mm;
+  padding: 1.2mm 1.8mm;
+  border-radius: 4px;
+  margin: 1mm 0 1.3mm;
+  font-size: 5.5pt;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.paper__pay-banner svg {
+  width: 3.2mm;
+  height: 3.2mm;
+  flex: none;
+  margin-top: .2mm;
+}
+
+.paper__pay-banner--verified {
+  background: rgba(46, 133, 64, .11);
+  border: 1px solid rgba(46, 133, 64, .32);
+  color: #1B5E2B;
+}
+
+.paper__pay-banner--review {
+  background: rgba(43, 108, 176, .1);
+  border: 1px solid rgba(43, 108, 176, .28);
+  color: #1E4E8C;
+}
+
+.paper__pay-banner--pending {
+  background: rgba(212, 164, 55, .15);
+  border: 1px solid rgba(186, 133, 24, .38);
+  color: #5E3F06;
+}
+
+.paper__pay-banner--rejected {
+  background: rgba(197, 48, 48, .1);
+  border: 1px solid rgba(197, 48, 48, .3);
+  color: #822020;
+}
+
+.paper__pay-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1mm 1.6mm;
+  padding-top: 1.1mm;
+  border-top: 1px dashed rgba(43, 22, 8, .15);
+}
+
+.paper__pay-kv span {
+  display: block;
+  font-size: 4.5pt;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #7A542E;
+  line-height: 1.1;
+}
+
+.paper__pay-kv b {
+  display: block;
+  font-size: 5.6pt;
+  font-weight: 700;
+  color: #231105;
+  margin-top: .2mm;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.paper__remit {
+  margin-top: 1.2mm;
+  padding: 1.1mm 1.6mm;
+  border-radius: 4px;
+  background: rgba(212, 164, 55, .12);
+  border: 1px solid rgba(212, 164, 55, .38);
+  font-size: 5.2pt;
+  line-height: 1.28;
+  color: #3A200B;
+}
+
+.paper__remit strong {
+  color: #231105;
+}
+
+.paper__line {
+  margin: .8mm 0 0;
+  font-size: 5.3pt;
+  line-height: 1.25;
+  color: #5C4028;
+}
+
+/* ---------- Financial Totals Box ---------- */
+.paper__totals {
+  padding: 2mm 2.4mm;
+  border-radius: 6px;
+  background: #FFFDF9;
+  border: 1px solid rgba(212, 164, 55, .5);
+  box-shadow: 0 3px 10px rgba(43, 22, 8, .05);
+  font-size: 6pt;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.paper__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5mm;
+  padding: .9mm 0;
+  border-bottom: 1px solid rgba(43, 22, 8, .07);
+  color: #3B200D;
+  line-height: 1.2;
+}
+
+.paper__row:last-of-type {
+  border-bottom: 0;
+}
+
+.paper__row span:last-child {
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.paper__row--cut {
+  color: #1F6E32;
+  font-weight: 650;
+}
+
+.paper__row--cut span:last-child {
+  color: #1F6E32;
+  font-weight: 750;
+}
+
+.paper__row--delivery {
+  color: #5C4028;
+  font-size: 5.6pt;
+}
+
+.paper__row--total {
+  margin-top: 1.1mm;
+  padding: 1.5mm 2mm;
+  border-radius: 5px;
+  border: 1px solid #D4A437;
+  background: linear-gradient(135deg, #2B1608 0%, #3A1E0B 100%);
+  color: #FFFBF5;
+  font-weight: 800;
+  font-size: 7pt;
+}
+
+.paper__row--total span:first-child {
+  font-size: 5pt;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: #ECC362;
+}
+
+.paper__row--total span:last-child {
+  font-family: var(--serif, "Playfair Display", Georgia, serif);
+  font-size: 8.6pt;
+  color: #FFE08C;
+}
+
+.paper__row--balance {
+  padding-top: 1mm;
+  font-size: 5.3pt;
+  color: #6B4D35;
+}
+
+/* ---------- Authentic Patisserie A6 Footer ---------- */
+.paper__foot {
+  margin-top: auto;
+  padding-top: 1.8mm;
+  border-top: 1px solid rgba(43, 22, 8, .15);
+  font-size: 5.2pt;
+  color: #5C4028;
+}
+
+.paper__foot-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2mm;
+}
+
+.paper__seal {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  flex: none;
+}
+
+.paper__seal img {
+  width: 6.2mm;
+  height: 6.2mm;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #D4A437;
+  flex: none;
+}
+
+.paper__seal strong {
+  display: block;
+  font-family: var(--serif, "Playfair Display", Georgia, serif);
+  font-size: 5.8pt;
+  color: #231105;
+  line-height: 1.15;
+}
+
+.paper__seal span {
+  display: block;
+  font-size: 4.8pt;
+  color: #7A542E;
+  line-height: 1.15;
+}
+
+.paper__foot-contact-wrap {
+  text-align: right;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.paper__contact {
+  margin: 0 0 .3mm;
+  font-weight: 700;
+  font-size: 5.1pt;
+  color: #2B1608;
+  line-height: 1.2;
+}
+
+.paper__fine {
+  margin: 0;
+  font-size: 4.7pt;
+  line-height: 1.22;
+  color: #7A5C43;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .02em;
+}
+
+/* ---------- Compact Density Mode for Multi-Item A6 Receipts ---------- */
+.paper.paper--compact .paper__head {
+  padding: 2.4mm 3.8mm;
+}
+.paper.paper--compact .paper__body {
+  padding: 2mm 3.8mm 2.2mm;
+}
+.paper.paper--compact .paper__ornament {
+  display: none;
+}
+.paper.paper--compact .paper__meta {
+  gap: 1.2mm;
+  margin-bottom: 1.6mm;
+}
+.paper.paper--compact .paper__pair {
+  padding: 1.1mm 1.8mm;
+}
+.paper.paper--compact .paper__items td,
+.paper.paper--compact .paper__items th {
+  padding: 1mm 1.6mm;
+  font-size: 5.8pt;
+}
+.paper.paper--compact .paper__summary-grid {
+  gap: 1.6mm;
+  margin-bottom: 1.4mm;
+}
+.paper.paper--compact .paper__pay,
+.paper.paper--compact .paper__totals {
+  padding: 1.5mm 2mm;
+}
+
+/* ---------- Small Mobile Screen Adaptation ---------- */
+@media screen and (max-width: 420px) {
+  .receipt,
+  .paper {
+    width: 100%;
+  }
+}
+
+/* ---------- Print / Save as Exact A6 PDF (105mm × 148mm) ---------- */
+@media print {
+  @page {
+    size: 105mm 148mm;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 105mm !important;
+    height: 148mm !important;
+    max-height: 148mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #FFFDF9 !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .receipt-page {
+    width: 105mm !important;
+    height: 148mm !important;
+    max-height: 148mm !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #FFFDF9 !important;
+    display: block !important;
+    overflow: hidden !important;
+  }
+
+  .receipt {
+    width: 105mm !important;
+    max-width: 105mm !important;
+    height: 148mm !important;
+    max-height: 148mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .receipt__bar,
+  .receipt__state,
+  noscript,
+  .mb-scroll-bar,
+  .mb-ambient-sparkles {
+    display: none !important;
+  }
+
+  .paper {
+    width: 105mm !important;
+    max-width: 105mm !important;
+    height: 148mm !important;
+    min-height: 148mm !important;
+    max-height: 148mm !important;
+    margin: 0 !important;
+    border: 1px solid #C59227 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .paper__summary-grid,
+  .paper__totals,
+  .paper__pay,
+  .paper__foot {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

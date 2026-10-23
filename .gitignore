@@ -1,0 +1,19 @@
+# Environment & local secrets (never commit service_role keys or .env files)
+.env
+.env.*
+!.env.example
+
+# Supabase local CLI state
+.supabase/
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Optional local build artifacts
+node_modules/
+dist/
