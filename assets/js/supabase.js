@@ -255,7 +255,24 @@ window.MB = window.MB || {};
       advance_threshold: '70000',
       auto_confirm: false,
       bundle_two_pct: 15,
-      bundle_three_pct: 25
+      bundle_three_pct: 25,
+      /* Business contact profile — kept in step with the DB column defaults so
+         local mode and the live project publish the same details. */
+      business_name: 'Mystery Bakebite',
+      business_tagline: 'Home bakery & baking school',
+      business_phone: '233554520532',
+      business_phone_display: '+233 55 452 0532',
+      business_email: 'mysterybakebite@gmail.com',
+      whatsapp_contact: '233554520532',
+      whatsapp_message: "Hello Mystery Bakebite, I'd like to place an order.",
+      whatsapp_number: '',
+      address_line1: '', address_line2: '',
+      address_city: 'Tamale', address_region: 'Northern Region', address_country: 'Ghana',
+      map_url: '',
+      opening_days: 'Monday to Sunday', opening_open: '08:00', opening_close: '19:00',
+      opening_note: 'Messages are answered during opening hours.',
+      social_instagram: 'https://www.instagram.com/mysterybakebites/',
+      social_facebook: '', social_tiktok: '', social_x: '', social_youtube: ''
     };
   }
 
@@ -725,8 +742,13 @@ window.MB = window.MB || {};
         prodPrepDays[p.sku] = productPrepDays(p);
       });
     }
+    /* The public WhatsApp line comes from the business profile (settings),
+       never from a literal here. Blank when the administrator has not set one,
+       so callers can fall back deliberately instead of dialling a stale number. */
+    var waContact = String(s.whatsapp_contact || '').replace(/\D/g, '');
+    var waAlerts  = String(s.whatsapp_number || '').replace(/\D/g, '');
     return {
-      whatsapp: '233554520532',
+      whatsapp: waContact || waAlerts,
       bundle_two_pct: two,
       bundle_three_pct: three,
       product_discounts: prodDiscounts,
@@ -746,7 +768,41 @@ window.MB = window.MB || {};
         name: s.bank_name,
         accountName: s.bank_account_name,
         accountNumber: s.bank_account_number
-      } : null
+      } : null,
+
+      /* Business contact profile. Mirrors the `contact` object that
+         api_config() returns from Postgres so the browser sees one shape. */
+      contact: {
+        businessName: s.business_name || 'Mystery Bakebite',
+        tagline: s.business_tagline || '',
+        phone: String(s.business_phone || '').replace(/\D/g, ''),
+        phoneDisplay: s.business_phone_display || '',
+        email: s.business_email || '',
+        whatsapp: String(s.whatsapp_contact || '').replace(/\D/g, ''),
+        whatsappMessage: s.whatsapp_message || '',
+        alerts: String(s.whatsapp_number || s.whatsapp_contact || '').replace(/\D/g, ''),
+        address: {
+          line1: s.address_line1 || '',
+          line2: s.address_line2 || '',
+          city: s.address_city || '',
+          region: s.address_region || '',
+          country: s.address_country || '',
+          mapUrl: s.map_url || ''
+        },
+        hours: {
+          days: s.opening_days || '',
+          open: s.opening_open || '',
+          close: s.opening_close || '',
+          note: s.opening_note || ''
+        },
+        social: {
+          instagram: s.social_instagram || '',
+          facebook: s.social_facebook || '',
+          tiktok: s.social_tiktok || '',
+          x: s.social_x || '',
+          youtube: s.social_youtube || ''
+        }
+      }
     };
   }
 
@@ -1344,25 +1400,16 @@ window.MB = window.MB || {};
       var payload = args.p_payload || {};
       var idemKey = String(args.p_idem || payload.idemKey || '').trim();
 
-      /* 1. Require authenticated session & verified email before any order or booking is created */
+      /* 1. Guest checkout is permitted. A session is optional; when present it is
+            linked to the order, but it is never required. */
       var actor = getAuthenticatedOrderActor(db, true);
-      if (!actor) {
-        return Promise.resolve({
-          ok: false,
-          auth: true,
-          code: 'auth_required',
-          error: 'Please sign in or create a customer account before placing an order.'
-        });
-      }
-      if (!actor.emailVerified) {
-        return Promise.resolve({
-          ok: false,
-          code: 'email_not_verified',
-          error: 'Please verify your email address (' + actor.email + ') before placing an order.'
-        });
-      }
+      var isGuest = !actor;
+      var actorId = actor ? actor.userId : null;
 
-      /* 2. Idempotency check scoped strictly to the authenticated customer */
+      /* 2. Idempotency check. A guest must never be able to recover another
+            guest's order token by guessing the key, so the phone must match too. */
+      var cust0 = payload.customer || {};
+      var phone0 = String(cust0.phone || payload.phone || '').trim().slice(0, 24);
       if (idemKey) {
         if (IN_FLIGHT_ORDERS[idemKey]) {
           return Promise.resolve({
@@ -1372,9 +1419,16 @@ window.MB = window.MB || {};
           });
         }
         var existingIdem = (db.orders || []).filter(function (o) {
-          return o.idemKey && o.idemKey === idemKey && o.customerId === actor.userId;
+          return o.idemKey && o.idemKey === idemKey && (o.customerId || null) === actorId;
         })[0];
         if (existingIdem) {
+          if (isGuest && normPhone(existingIdem.phone || '') !== normPhone(phone0)) {
+            return Promise.resolve({
+              ok: false,
+              code: 'idempotency_conflict',
+              error: 'That request could not be completed. Please submit the order again.'
+            });
+          }
           return Promise.resolve({
             ok: true,
             deduplicated: true,
@@ -1386,12 +1440,33 @@ window.MB = window.MB || {};
       }
 
       var cust = payload.customer || {};
-      var nameStr = String(cust.name || payload.name || actor.fullName || '').trim().slice(0, 120);
-      var phoneStr = String(cust.phone || payload.phone || actor.phone || '').trim().slice(0, 24);
-      /* Derive customerId and email from the verified session — never trust browser-supplied customerId */
-      var emailStr = actor.email;
+      var nameStr = String(cust.name || payload.name || (actor && actor.fullName) || '').trim().slice(0, 120);
+      var phoneStr = String(cust.phone || payload.phone || (actor && actor.phone) || '').trim().slice(0, 24);
+      /* The e-mail comes from the verified session for signed-in customers and
+         from the form for guests. A browser-supplied customerId is never trusted. */
+      var emailStr = actor ? (actor.email || '') : String(cust.email || payload.email || '').trim().slice(0, 160);
       if (nameStr.length < 2 || !phoneStr || normPhone(phoneStr).length < 7) {
         return Promise.resolve({ ok: false, code: 'invalid_customer', error: 'Please enter a valid full name and reachable phone number.' });
+      }
+      if (emailStr && !/^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/.test(emailStr)) {
+        return Promise.resolve({ ok: false, code: 'invalid_email', error: 'That e-mail address does not look right. You can also leave it blank.' });
+      }
+
+      /* Guest anti-abuse throttle: max 5 guest orders per phone per hour. */
+      if (isGuest) {
+        var hourAgo = Date.now() - 3600000;
+        var recentSamePhone = (db.orders || []).filter(function (o) {
+          return !o.customerId &&
+            normPhone(o.phone || '') === normPhone(phoneStr) &&
+            new Date(o.createdAt || 0).getTime() > hourAgo;
+        }).length;
+        if (recentSamePhone >= 5) {
+          return Promise.resolve({
+            ok: false,
+            code: 'rate_limited',
+            error: 'Several orders have just been placed with this phone number. Please wait a little while, or message the kitchen directly.'
+          });
+        }
       }
 
       var rawItems = Array.isArray(payload.items) ? payload.items : (Array.isArray(payload.classes) ? payload.classes : []);
@@ -1553,8 +1628,8 @@ window.MB = window.MB || {};
         token: token,
         idemKey: idemKey || null,
         kind: kind,
-        customerId: actor.userId,
-        customer_id: actor.userId,
+        customerId: actorId,
+        customer_id: actorId,
         createdAt: nowIso,
         created_at: nowIso,
         receiptVersion: 1,
@@ -1600,7 +1675,7 @@ window.MB = window.MB || {};
         db.orderItems.push({
           id: 'oi-' + ref + '-' + idx,
           orderRef: ref,
-          customerId: actor.userId,
+          customerId: actorId,
           lineIndex: idx,
           itemKind: oi.custom ? 'custom_cake' : (kind === 'class' ? 'class' : 'product'),
           productSku: oi.sku || null,
@@ -1621,7 +1696,7 @@ window.MB = window.MB || {};
       db.payments.unshift({
         id: 'pay-' + ref,
         orderRef: ref,
-        customerId: actor.userId,
+        customerId: actorId,
         paymentMethod: pm,
         expectedAmount: priced.total,
         transactionReference: '',
@@ -1641,7 +1716,7 @@ window.MB = window.MB || {};
         db.classBookings.unshift({
           id: 'cb-' + ref,
           bookingRef: ref,
-          customerId: actor.userId,
+          customerId: actorId,
           courses: orderItems,
           bundles: priced.bundles || [],
           subtotal: priced.subtotal,
@@ -1657,7 +1732,7 @@ window.MB = window.MB || {};
       }
 
       /* Sync customer profile name/phone if not already set */
-      var custProf = (db.customers || []).filter(function (c) { return c.userId === actor.userId; })[0];
+      var custProf = (db.customers || []).filter(function (c) { return c.userId === actorId; })[0];
       if (custProf) {
         if (!custProf.fullName || custProf.fullName.length < 2) custProf.fullName = nameStr;
         if (!custProf.phone || custProf.phone.length < 7) custProf.phone = phoneStr;
@@ -2806,6 +2881,132 @@ window.MB = window.MB || {};
 
   MB.currentActor = function () { return getAuthenticatedOrderActor(loadLocalDb(), { includeUnverified: true }); };
 
+  /* ---------- new-order alert (WhatsApp) ----------
+     Guests place orders without a session, so the baker has to be told that an
+     order arrived. The message is built here identically to the Edge Function's
+     version so the wa.me fallback and the automatic send read the same. */
+
+  var PAY_LABELS = {
+    awaiting_payment: 'Awaiting Payment',
+    payment_submitted: 'Proof submitted \u2014 Pending Verification',
+    payment_verified: 'Payment Verified',
+    payment_rejected: 'Payment Rejected',
+    pay_on_collection: 'Pay on Collection',
+    not_required: 'Not Required'
+  };
+
+  function prettyOrderDate(ymd) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd || ''));
+    if (!m) return ymd ? String(ymd) : 'Not specified';
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (isNaN(d.getTime())) return String(ymd);
+    try {
+      return d.toLocaleDateString('en-GB', {
+        weekday: 'short', day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC'
+      });
+    } catch (e) { return String(ymd); }
+  }
+
+  function summariseOrderItems(items) {
+    if (!items || !items.length) return 'No line items recorded';
+    var parts = items.slice(0, 8).map(function (raw) {
+      var qty = Number(raw && raw.qty) || 1;
+      var name = String((raw && (raw.name || raw.itemName || raw.sku)) || 'Item').trim();
+      var meta = String((raw && (raw.meta || raw.itemMeta)) || '').trim();
+      return qty + ' \u00d7 ' + name + (meta ? ' (' + meta + ')' : '');
+    });
+    if (items.length > 8) parts.push('+' + (items.length - 8) + ' more');
+    return parts.join('; ');
+  }
+
+  var METHOD_LABELS = {
+    momo: 'Mobile Money',
+    bank_transfer: 'Bank transfer',
+    cash_on_pickup: 'Cash on pickup',
+    cash_on_delivery: 'Cash on delivery'
+  };
+
+  /** 250000 (pesewas) -> "GH\u20b52,500.00" */
+  function alertMoney(pesewas) {
+    var n = Number(pesewas);
+    if (!isFinite(n)) return '\u2014';
+    try {
+      return 'GH\u20b5' + (n / 100).toLocaleString('en-GH', {
+        minimumFractionDigits: 2, maximumFractionDigits: 2
+      });
+    } catch (e) {
+      return 'GH\u20b5' + (n / 100).toFixed(2);
+    }
+  }
+
+  function alertFulfilment(order) {
+    var f = String(order.fulfilment || '');
+    if (f === 'delivery') {
+      var addr = String(order.address || '').trim();
+      return addr ? 'Delivery to ' + addr : 'Delivery (address not recorded)';
+    }
+    return 'Collection from the kitchen';
+  }
+
+  /** The exact alert text the baker receives. */
+  MB.orderAlertMessage = function (order) {
+    order = order || {};
+    var payment = PAY_LABELS[String(order.paymentStatus || order.payment_status || '')] || 'Pending Verification';
+    var method = METHOD_LABELS[String(order.paymentMethod || order.payment_method || '')]
+      || String(order.paymentMethod || order.payment_method || '\u2014');
+    var lines = [
+      '\ud83c\udf70 *New Order | Mystery Bakebite*',
+      '',
+      '*Reference:* ' + (order.ref || '\u2014'),
+      '*Customer:* ' + (order.customerName || (order.customer && order.customer.name) || order.customer_name || 'Not provided'),
+      '*Phone:* ' + (order.phone || (order.customer && order.customer.phone) || 'Not provided'),
+      '*Items:* ' + summariseOrderItems(order.items),
+      '*Total:* ' + alertMoney(order.total),
+      '*Date needed:* ' + prettyOrderDate(order.eventDate || order.event_date),
+      '*' + alertFulfilment(order) + '*',
+      '*Payment method:* ' + method,
+      '*Payment status:* ' + payment,
+      '',
+      'Log in to the admin dashboard to review, verify payment and approve.'
+    ];
+    if (order.notes) lines.push('', '*Notes:* ' + String(order.notes).slice(0, 300));
+    return lines.join('\n');
+  };
+
+  /** One-tap fallback link, used when the automatic send is unavailable. */
+  MB.whatsappOrderLink = function (order) {
+    var to = '';
+    /* Priority: the alert number from the business profile (settings), then the
+       legacy MB_CONFIG.bakerWhatsApp override, then the public WhatsApp line. */
+    if (MB.contact && typeof MB.contact.alertsNumber === 'function') {
+      to = MB.contact.alertsNumber();
+    }
+    if (!to) {
+      var cfg = window.MB_CONFIG || {};
+      to = String(cfg.bakerWhatsApp || '').replace(/\D/g, '');
+    }
+    if (!to && MB.contact && typeof MB.contact.get === 'function') {
+      to = String((MB.contact.get() || {}).whatsapp || '').replace(/\D/g, '');
+    }
+    if (!to) return '';
+    return 'https://wa.me/' + to + '?text=' + encodeURIComponent(MB.orderAlertMessage(order));
+  };
+
+  /**
+   * Ask the notify-order Edge Function to WhatsApp the baker.
+   * Fire-and-forget: an order must never fail because a notification did.
+   * The order token proves the caller owns the order.
+   */
+  MB.notifyBaker = function (ref, token, order) {
+    var payload = { ref: String(ref || '').trim(), token: String(token || '').trim() };
+    if (MB.localMode || !MB.remoteConfigured) {
+      return Promise.resolve({ ok: true, local: true, message: MB.orderAlertMessage(order) });
+    }
+    return call('/functions/v1/notify-order', { method: 'POST', body: payload })
+      .then(function (res) { return res && typeof res === 'object' ? res : { ok: false }; })
+      .catch(function () { return { ok: false, error: 'network' }; });
+  };
+
   /* ---------- session storage ---------- */
 
   function readSession() {
@@ -3076,6 +3277,13 @@ window.MB = window.MB || {};
     if (/Failed to fetch|NetworkError|aborted|Load failed/i.test(message)) {
       message = 'We could not reach the bakery database. Check your connection and try again.';
       code = 'network';
+    }
+    if (code === 'PGRST202' || /Could not find the function/i.test(message)) {
+      /* The database function is not installed yet (migrations not applied).
+         Never show a raw PostgREST error to a shopper. The code is kept as
+         PGRST202 so pages can still detect the not-configured state. */
+      code = 'PGRST202';
+      message = 'Online ordering is still being set up. Please message us on WhatsApp and we will gladly take your order.';
     }
     return { ok: false, error: message, code: code, auth: code === 'unauthorised' || code === '42501' };
   }

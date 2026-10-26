@@ -304,6 +304,123 @@
     window.location.href = 'booking.html';
   }
 
+  /* ------------------------------------------------------------------ *
+   * Course loading, with an honest failure state
+   *
+   * The page used to render "Courses could not be loaded" and blank the
+   * pastry column on ANY failure, with no way to recover except a manual
+   * refresh. It also had no path for "the call worked but returned nothing",
+   * which is what an empty classes table looks like.
+   *
+   * Each outcome now gets its own message and a Try again button, because the
+   * causes need different actions from the person reading them:
+   *   network / PGRST   -> a real connection or deployment problem
+   *   not_configured    -> MB_CONFIG has no project URL
+   *   empty catalogue   -> the query worked; the kitchen simply has nothing
+   *                        published, which is a bakery task, not a bug
+   * ------------------------------------------------------------------ */
+
+  function failureMarkup(message, detail) {
+    return '<div class="alert alert--error classes-failure">' + ICONS.info +
+      '<div><strong>' + esc(message) + '</strong>' +
+      (detail ? '<br><span class="classes-failure__detail">' + esc(detail) + '</span>' : '') +
+      '<div style="margin-top:.9rem"><button type="button" class="btn btn--gold btn--sm" id="classes-retry">Try again</button></div>' +
+      '</div></div>';
+  }
+
+  function showLoading() {
+    if (els.bread) els.bread.innerHTML = '<p class="panel__hint">Loading the bread courses\u2026</p>';
+    if (els.pastry) els.pastry.innerHTML = '<p class="panel__hint">Loading the pastry courses\u2026</p>';
+  }
+
+  function showFailure(message, detail) {
+    var html = failureMarkup(message, detail);
+    /* Both columns get the message: showing it once and leaving the other
+       column empty is what made the page look half-broken. */
+    if (els.bread) els.bread.innerHTML = html;
+    if (els.pastry) els.pastry.innerHTML = html;
+  }
+
+  function messageFor(res) {
+    var code = (res && res.code) || '';
+    if (code === 'not_configured') {
+      return {
+        message: 'The course list is not connected yet.',
+        detail: 'The website has no bakery database configured. Please message the kitchen and we will take your booking directly.'
+      };
+    }
+    if (code === 'PGRST202' || code === '42883') {
+      return {
+        message: 'The course service is not available yet.',
+        detail: 'The bakery database is missing a required step. Please try again shortly, or message the kitchen to book.'
+      };
+    }
+    if (code === 'network' || code === 'Failed to fetch') {
+      return {
+        message: 'We could not reach the bakery.',
+        detail: 'Check your internet connection, then try again.'
+      };
+    }
+    if (code === 'unauthorised' || code === '42501') {
+      return {
+        message: 'The course list is not publicly available right now.',
+        detail: 'Please try again shortly, or message the kitchen to book directly.'
+      };
+    }
+    return {
+      message: 'Courses could not be loaded.',
+      detail: 'This is usually temporary. Try again, or message the kitchen and we will help you book.'
+    };
+  }
+
+  function loadCourses() {
+    showLoading();
+    MB.api('/api/catalogue').then(function (data) {
+      if (!data || !data.ok) {
+        var m = messageFor(data);
+        showFailure(m.message, m.detail);
+        return;
+      }
+
+      state.classes = Array.isArray(data.classes) ? data.classes : [];
+
+      if (data.config) {
+        state.config = {
+          two: Number(data.config.bundle_two_pct),
+          three: Number(data.config.bundle_three_pct)
+        };
+        if (!isFinite(state.config.two)) state.config.two = 15;
+        if (!isFinite(state.config.three)) state.config.three = 25;
+      }
+
+      /* The call succeeded but there is nothing to show. Say so plainly —
+         an empty grid reads as a broken page. */
+      if (!state.classes.length) {
+        if (els.bread) {
+          els.bread.innerHTML = '<div class="alert">' + ICONS.info +
+            '<div><strong>No courses are open for booking at the moment.</strong>' +
+            '<br><span class="classes-failure__detail">The kitchen publishes each intake here. Message us and we will tell you when the next one starts.</span></div></div>';
+        }
+        if (els.pastry) els.pastry.innerHTML = '';
+        return;
+      }
+
+      state.loaded = true;
+      render();
+
+      var hash = window.location.hash;
+      if (hash) {
+        var target = null;
+        try { target = document.querySelector(hash); } catch (e) { target = null; }
+        if (target) target.scrollIntoView({ block: 'start' });
+      }
+    }).catch(function () {
+      /* MB.api normally resolves with {ok:false}; this covers a thrown error
+         or a rejected promise so the page can never hang on "Loading…". */
+      showFailure('We could not reach the bakery.', 'Check your internet connection, then try again.');
+    });
+  }
+
   function init() {
     els.bread = document.getElementById('classes-bread');
     els.pastry = document.getElementById('classes-pastry');
@@ -318,35 +435,14 @@
 
     restore();
 
-    MB.api('/api/catalogue').then(function (data) {
-      if (!data || !data.ok) {
-        // the database could not be reached, so say that rather than pretending
-        // the bakery has no courses
-        var message = (data && data.code === 'not_configured')
-          ? 'The course list is not connected yet. Please message the kitchen on WhatsApp.'
-          : 'Courses could not be loaded. Please refresh, or message the kitchen on WhatsApp.';
-        if (els.bread) els.bread.innerHTML = '<div class="alert alert--error">' + ICONS.info + '<span>' + esc(message) + '</span></div>';
-        if (els.pastry) els.pastry.innerHTML = '';
-        return;
-      }
-      state.classes = data.classes || [];
-      if (data.config) {
-        state.config = {
-          two: Number(data.config.bundle_two_pct),
-          three: Number(data.config.bundle_three_pct)
-        };
-        if (!isFinite(state.config.two)) state.config.two = 15;
-        if (!isFinite(state.config.three)) state.config.three = 25;
-      }
-      render();
-      var hash = window.location.hash;
-      if (hash) {
-        var target = document.querySelector(hash);
-        if (target) target.scrollIntoView({ block: 'start' });
-      }
-    }).catch(function () {
-      if (els.bread) els.bread.innerHTML = '<div class="alert alert--error">' + ICONS.info +
-        '<span>Courses could not be loaded. Please refresh, or message the kitchen on WhatsApp.</span></div>';
+    loadCourses();
+
+    /* Retry is a delegated listener so it survives re-rendering the panel. */
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('#classes-retry');
+      if (!btn) return;
+      e.preventDefault();
+      loadCourses();
     });
 
     document.addEventListener('click', function (e) {

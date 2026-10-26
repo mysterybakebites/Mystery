@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-5r0ceAi77ofyhKluuUBJUzdOIMc4aEZR9Xlgif5W6zg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
 <title>Products: Cakes, Doughnuts and More | Mystery Bakebite</title>
 <meta name="description" content="Browse and order every Mystery Bakebite product: doughnuts, cake slices, loaves, celebration cakes and build your own cake with live pricing.">
 <meta name="theme-color" content="#2B1608">
@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/PlayfairDisplay-normal-400_800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/GreatVibes-normal-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/styles.css?v=49">
+<link rel="stylesheet" href="assets/css/styles.css?v=51">
 <script>document.documentElement.className='js';</script>
 </head>
 <body id="top">
@@ -42,7 +42,7 @@
       </nav>
 
       <div class="nav-actions">
-        <a class="btn btn--gold nav-cta" href="https://wa.me/233554520532?text=Hello%20Mystery%20Bakebite%2C%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener noreferrer">
+        <a class="btn btn--gold nav-cta" href="#" data-contact-link="whatsapp" data-contact-msg="Hello Mystery Bakebite, I&#x27;d like to place an order." target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.2-1.3c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.6 13.5 3.6 12 3.6 7.4 7.4 3.6 12 3.6S20.4 7.4 20.4 12 16.6 20.2 12 20.2z"/></svg>
           WhatsApp
         </a>
@@ -54,7 +54,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 6h15l-1.6 9.4a2 2 0 01-2 1.6H9.3a2 2 0 01-2-1.7L6 6z"/><path d="M6 6L5 2.6H2"/><circle cx="9.5" cy="20.4" r="1.5"/><circle cx="17.5" cy="20.4" r="1.5"/></svg>
           <span class="cart-btn__count is-empty" data-cart-count>0</span>
         </button>
-        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
           <span class="nav-toggle__bar"></span>
           <span class="nav-toggle__bar"></span>
           <span class="nav-toggle__bar"></span>
@@ -72,7 +72,6 @@
       <li><a href="classes.html">Classes <span>03</span></a></li>
       <li><a href="products.html">Products <span>04</span></a></li>
       <li><a href="contact.html">Contact Us <span>05</span></a></li>
-      <li><a href="account.html">My Account <span>06</span></a></li>
     </ul>
   </nav>
   <div class="mobile-menu__foot">
@@ -84,8 +83,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.5a4 4 0 018 0V10"/><path d="M12 14v2.5"/></svg>
       SIGN-IN
     </a>
-    <p class="mobile-menu__meta">Monday to Sunday, 8:00am &ndash; 7:00pm &middot; Tamale, Ghana<br>
-      <a href="mailto:mysterybakebite@gmail.com">mysterybakebite@gmail.com</a></p>
+    <p class="mobile-menu__meta"><span data-contact="hours"></span> &middot; <span data-contact="addressShort"></span><br>
+      <a href="#" data-contact-link="email"><span data-contact="email"></span></a></p>
   </div>
 </div>
 
@@ -138,7 +137,7 @@
           <img src="assets/img/milky-doughnuts-new.webp" alt="Box of fresh milk-crumb coated Milky Doughnuts with vanilla and strawberry cream swirls" loading="lazy" width="1254" height="1254">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="milky-2">
             <span class="vrow__txt">
               <span class="vrow__name">Milky donuts, 2 pcs</span>
               <span class="vrow__meta">2 pieces &middot; Soft, creamy and fresh.</span>
@@ -146,7 +145,7 @@
             <span class="vrow__price">GH&#8373; 30.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;milky-2&quot;, &quot;name&quot;: &quot;Milky donuts, 2 pcs&quot;, &quot;unitPrice&quot;: 3000, &quot;image&quot;: &quot;assets/img/milky-doughnuts-new.webp&quot;, &quot;meta&quot;: &quot;2 pieces&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Milky donuts, 2 pcs to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="milky-3">
             <span class="vrow__txt">
               <span class="vrow__name">Milky donuts, 3 pcs</span>
               <span class="vrow__meta">3 pieces &middot; With creamy fill-in.</span>
@@ -154,7 +153,7 @@
             <span class="vrow__price">GH&#8373; 42.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;milky-3&quot;, &quot;name&quot;: &quot;Milky donuts, 3 pcs&quot;, &quot;unitPrice&quot;: 4200, &quot;image&quot;: &quot;assets/img/milky-doughnuts-new.webp&quot;, &quot;meta&quot;: &quot;3 pieces&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Milky donuts, 3 pcs to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="milky-6">
             <span class="vrow__txt">
               <span class="vrow__name">Milky donuts, 6 pcs</span>
               <span class="vrow__meta">Half dozen &middot; With creamy fill-in.</span>
@@ -162,7 +161,7 @@
             <span class="vrow__price">GH&#8373; 75.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;milky-6&quot;, &quot;name&quot;: &quot;Milky donuts, 6 pcs&quot;, &quot;unitPrice&quot;: 7500, &quot;image&quot;: &quot;assets/img/milky-doughnuts-new.webp&quot;, &quot;meta&quot;: &quot;Half dozen&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Milky donuts, 6 pcs to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="milky-12">
             <span class="vrow__txt">
               <span class="vrow__name">Milky donuts, 12 pcs</span>
               <span class="vrow__meta">Dozen &middot; With creamy fill-in, for sharing. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -187,7 +186,7 @@
           <img src="assets/img/hero-doughnut.webp" alt="Mini Doughnuts and Doughnut Balls" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="mini-10">
             <span class="vrow__txt">
               <span class="vrow__name">Mini donuts, pack of 10</span>
               <span class="vrow__meta">Pack of 10 &middot; With chocolate syrup.</span>
@@ -195,7 +194,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;mini-10&quot;, &quot;name&quot;: &quot;Mini donuts, pack of 10&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/hero-doughnut.webp&quot;, &quot;meta&quot;: &quot;Pack of 10&quot;}" aria-label="Add Mini donuts, pack of 10 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="balls-12">
             <span class="vrow__txt">
               <span class="vrow__name">Mini donut balls, pack of 12</span>
               <span class="vrow__meta">Pack of 12 &middot; With chocolate syrup.</span>
@@ -203,7 +202,7 @@
             <span class="vrow__price">GH&#8373; 30.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;balls-12&quot;, &quot;name&quot;: &quot;Mini donut balls, pack of 12&quot;, &quot;unitPrice&quot;: 3000, &quot;image&quot;: &quot;assets/img/hero-doughnut.webp&quot;, &quot;meta&quot;: &quot;Pack of 12&quot;}" aria-label="Add Mini donut balls, pack of 12 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="balls-25">
             <span class="vrow__txt">
               <span class="vrow__name">Mini donut balls, pack of 25</span>
               <span class="vrow__meta">Pack of 25 &middot; With chocolate syrup, for sharing.</span>
@@ -228,7 +227,7 @@
           <img src="assets/img/prod-slices.webp" alt="Cake Slices" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="slice-classic">
             <span class="vrow__txt">
               <span class="vrow__name">Classic slice</span>
               <span class="vrow__meta">One slice &middot; Vanilla or banana.</span>
@@ -236,7 +235,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;slice-classic&quot;, &quot;name&quot;: &quot;Classic slice&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/prod-slices.webp&quot;, &quot;meta&quot;: &quot;One slice&quot;}" aria-label="Add Classic slice to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="slice-signature">
             <span class="vrow__txt">
               <span class="vrow__name">Signature slice</span>
               <span class="vrow__meta">One slice &middot; Chocolate, red velvet, carrot or lemon.</span>
@@ -244,7 +243,7 @@
             <span class="vrow__price">GH&#8373; 40.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;slice-signature&quot;, &quot;name&quot;: &quot;Signature slice&quot;, &quot;unitPrice&quot;: 4000, &quot;image&quot;: &quot;assets/img/prod-slices.webp&quot;, &quot;meta&quot;: &quot;One slice&quot;}" aria-label="Add Signature slice to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="tasting-box">
             <span class="vrow__txt">
               <span class="vrow__name">Tasting box, 4 half-slices</span>
               <span class="vrow__meta">4 half-slices &middot; All flavours, for choosing. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -252,7 +251,7 @@
             <span class="vrow__price">GH&#8373; 70.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;tasting-box&quot;, &quot;name&quot;: &quot;Tasting box, 4 half-slices&quot;, &quot;unitPrice&quot;: 7000, &quot;image&quot;: &quot;assets/img/prod-slices.webp&quot;, &quot;meta&quot;: &quot;4 half-slices&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Tasting box, 4 half-slices to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="flavour-box">
             <span class="vrow__txt">
               <span class="vrow__name">Full flavour box, 4 full slices</span>
               <span class="vrow__meta">4 full slices &middot; One of each, to share. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -277,7 +276,7 @@
           <img src="assets/img/prod-loaves.webp" alt="Loaves and Bread" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="banana-small-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Banana loaf, small, plain</span>
               <span class="vrow__meta">Small &middot; Small loaf, plain top. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -285,7 +284,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;banana-small-plain&quot;, &quot;name&quot;: &quot;Banana loaf, small, plain&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Small&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Banana loaf, small, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="banana-small-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Banana loaf, small, topped</span>
               <span class="vrow__meta">Small &middot; Small loaf with Oreo, chocolate or raisin topping. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -293,7 +292,7 @@
             <span class="vrow__price">GH&#8373; 45.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;banana-small-topped&quot;, &quot;name&quot;: &quot;Banana loaf, small, topped&quot;, &quot;unitPrice&quot;: 4500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Small&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Banana loaf, small, topped to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="banana-big-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Banana loaf, big, plain</span>
               <span class="vrow__meta">Big &middot; Big loaf, plain top. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -301,7 +300,7 @@
             <span class="vrow__price">GH&#8373; 70.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;banana-big-plain&quot;, &quot;name&quot;: &quot;Banana loaf, big, plain&quot;, &quot;unitPrice&quot;: 7000, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Big&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Banana loaf, big, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="banana-big-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Banana loaf, big, topped</span>
               <span class="vrow__meta">Big &middot; Big loaf with Oreo, chocolate or raisin topping. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -309,7 +308,7 @@
             <span class="vrow__price">GH&#8373; 85.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;banana-big-topped&quot;, &quot;name&quot;: &quot;Banana loaf, big, topped&quot;, &quot;unitPrice&quot;: 8500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Big&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Banana loaf, big, topped to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="vanilla-small-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Vanilla loaf, small, plain</span>
               <span class="vrow__meta">Small &middot; Small loaf, plain top. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -317,7 +316,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;vanilla-small-plain&quot;, &quot;name&quot;: &quot;Vanilla loaf, small, plain&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Small&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Vanilla loaf, small, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="vanilla-small-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Vanilla loaf, small, topped</span>
               <span class="vrow__meta">Small &middot; Small loaf with Oreo, chocolate or raisin topping. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -325,7 +324,7 @@
             <span class="vrow__price">GH&#8373; 45.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;vanilla-small-topped&quot;, &quot;name&quot;: &quot;Vanilla loaf, small, topped&quot;, &quot;unitPrice&quot;: 4500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Small&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Vanilla loaf, small, topped to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="vanilla-big-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Vanilla loaf, big, plain</span>
               <span class="vrow__meta">Big &middot; Big loaf, plain top. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -333,7 +332,7 @@
             <span class="vrow__price">GH&#8373; 65.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;vanilla-big-plain&quot;, &quot;name&quot;: &quot;Vanilla loaf, big, plain&quot;, &quot;unitPrice&quot;: 6500, &quot;image&quot;: &quot;assets/img/prod-loaves.webp&quot;, &quot;meta&quot;: &quot;Big&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Vanilla loaf, big, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="vanilla-big-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Vanilla loaf, big, topped</span>
               <span class="vrow__meta">Big &middot; Big loaf with Oreo, chocolate or raisin topping. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -358,7 +357,7 @@
           <img src="assets/img/mystery-cookie-box.webp" alt="Mystery Bakebite gift box of freshly baked chocolate chunk cookies" loading="lazy" width="1254" height="1254">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="choc-cookies-4">
             <span class="vrow__txt">
               <span class="vrow__name">Chocolate cookies, pack of 4</span>
               <span class="vrow__meta">Pack of 4 &middot; Chocolate cookies.</span>
@@ -366,7 +365,7 @@
             <span class="vrow__price">GH&#8373; 40.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;choc-cookies-4&quot;, &quot;name&quot;: &quot;Chocolate cookies, pack of 4&quot;, &quot;unitPrice&quot;: 4000, &quot;image&quot;: &quot;assets/img/mystery-cookie-box.webp&quot;, &quot;meta&quot;: &quot;Pack of 4&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Chocolate cookies, pack of 4 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="choc-cookies-8">
             <span class="vrow__txt">
               <span class="vrow__name">Chocolate cookies, pack of 8</span>
               <span class="vrow__meta">Pack of 8 &middot; Chocolate cookies.</span>
@@ -374,7 +373,7 @@
             <span class="vrow__price">GH&#8373; 75.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;choc-cookies-8&quot;, &quot;name&quot;: &quot;Chocolate cookies, pack of 8&quot;, &quot;unitPrice&quot;: 7500, &quot;image&quot;: &quot;assets/img/mystery-cookie-box.webp&quot;, &quot;meta&quot;: &quot;Pack of 8&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Chocolate cookies, pack of 8 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="choc-cookies-12">
             <span class="vrow__txt">
               <span class="vrow__name">Chocolate cookies, pack of 12</span>
               <span class="vrow__meta">Pack of 12 &middot; Chocolate cookies. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -382,7 +381,7 @@
             <span class="vrow__price">GH&#8373; 120.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;choc-cookies-12&quot;, &quot;name&quot;: &quot;Chocolate cookies, pack of 12&quot;, &quot;unitPrice&quot;: 12000, &quot;image&quot;: &quot;assets/img/mystery-cookie-box.webp&quot;, &quot;meta&quot;: &quot;Pack of 12&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Chocolate cookies, pack of 12 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="butter-cookies-4">
             <span class="vrow__txt">
               <span class="vrow__name">Butter cookies, pack of 4</span>
               <span class="vrow__meta">Pack of 4 &middot; Butter cookies.</span>
@@ -390,7 +389,7 @@
             <span class="vrow__price">GH&#8373; 30.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;butter-cookies-4&quot;, &quot;name&quot;: &quot;Butter cookies, pack of 4&quot;, &quot;unitPrice&quot;: 3000, &quot;image&quot;: &quot;assets/img/prod-cookies.webp&quot;, &quot;meta&quot;: &quot;Pack of 4&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Butter cookies, pack of 4 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="butter-cookies-8">
             <span class="vrow__txt">
               <span class="vrow__name">Butter cookies, pack of 8</span>
               <span class="vrow__meta">Pack of 8 &middot; Butter cookies.</span>
@@ -398,7 +397,7 @@
             <span class="vrow__price">GH&#8373; 60.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;butter-cookies-8&quot;, &quot;name&quot;: &quot;Butter cookies, pack of 8&quot;, &quot;unitPrice&quot;: 6000, &quot;image&quot;: &quot;assets/img/prod-cookies.webp&quot;, &quot;meta&quot;: &quot;Pack of 8&quot;, &quot;prepDays&quot;: 0}" aria-label="Add Butter cookies, pack of 8 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="butter-cookies-12">
             <span class="vrow__txt">
               <span class="vrow__name">Butter cookies, pack of 12</span>
               <span class="vrow__meta">Pack of 12 &middot; Butter cookies. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -406,7 +405,7 @@
             <span class="vrow__price">GH&#8373; 120.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;butter-cookies-12&quot;, &quot;name&quot;: &quot;Butter cookies, pack of 12&quot;, &quot;unitPrice&quot;: 12000, &quot;image&quot;: &quot;assets/img/prod-cookies.webp&quot;, &quot;meta&quot;: &quot;Pack of 12&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Butter cookies, pack of 12 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="mixed-cookie-box">
             <span class="vrow__txt">
               <span class="vrow__name">Mixed cookie box, 14 pcs</span>
               <span class="vrow__meta">14 pieces &middot; A mix of both, for gifting and sharing. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -431,7 +430,7 @@
           <img src="assets/img/prod-cupcakes.webp" alt="Cupcakes" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="cupcakes-6">
             <span class="vrow__txt">
               <span class="vrow__name">Cupcakes, box of 6</span>
               <span class="vrow__meta">Box of 6 &middot; Iced and finished by hand. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -439,7 +438,7 @@
             <span class="vrow__price">GH&#8373; 72.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;cupcakes-6&quot;, &quot;name&quot;: &quot;Cupcakes, box of 6&quot;, &quot;unitPrice&quot;: 7200, &quot;image&quot;: &quot;assets/img/prod-cupcakes.webp&quot;, &quot;meta&quot;: &quot;Box of 6&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Cupcakes, box of 6 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="cupcakes-8">
             <span class="vrow__txt">
               <span class="vrow__name">Cupcakes, box of 8</span>
               <span class="vrow__meta">Box of 8 &middot; Iced and finished by hand. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -447,7 +446,7 @@
             <span class="vrow__price">GH&#8373; 95.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;cupcakes-8&quot;, &quot;name&quot;: &quot;Cupcakes, box of 8&quot;, &quot;unitPrice&quot;: 9500, &quot;image&quot;: &quot;assets/img/prod-cupcakes.webp&quot;, &quot;meta&quot;: &quot;Box of 8&quot;, &quot;prepDays&quot;: 1}" aria-label="Add Cupcakes, box of 8 to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="cupcakes-12">
             <span class="vrow__txt">
               <span class="vrow__name">Cupcakes, box of 12</span>
               <span class="vrow__meta">Box of 12 &middot; Iced and finished by hand. <span class="prep-badge" data-prep-days="1">Order at least 1 day ahead</span></span>
@@ -472,7 +471,7 @@
           <img src="assets/img/prod-parfait.webp" alt="Parfait" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="parfait-cup-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Cake parfait, cup, plain</span>
               <span class="vrow__meta">Cup &middot; Layered parfait in a cup.</span>
@@ -480,7 +479,7 @@
             <span class="vrow__price">GH&#8373; 60.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;parfait-cup-plain&quot;, &quot;name&quot;: &quot;Cake parfait, cup, plain&quot;, &quot;unitPrice&quot;: 6000, &quot;image&quot;: &quot;assets/img/prod-parfait.webp&quot;, &quot;meta&quot;: &quot;Cup&quot;}" aria-label="Add Cake parfait, cup, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="parfait-cup-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Cake parfait, cup, topped</span>
               <span class="vrow__meta">Cup &middot; Layered parfait in a cup with toppings.</span>
@@ -488,7 +487,7 @@
             <span class="vrow__price">GH&#8373; 75.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;parfait-cup-topped&quot;, &quot;name&quot;: &quot;Cake parfait, cup, topped&quot;, &quot;unitPrice&quot;: 7500, &quot;image&quot;: &quot;assets/img/prod-parfait.webp&quot;, &quot;meta&quot;: &quot;Cup&quot;}" aria-label="Add Cake parfait, cup, topped to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="parfait-bowl-plain">
             <span class="vrow__txt">
               <span class="vrow__name">Cake parfait, bowl, plain</span>
               <span class="vrow__meta">Bowl &middot; Layered parfait in a bowl.</span>
@@ -496,7 +495,7 @@
             <span class="vrow__price">GH&#8373; 85.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;parfait-bowl-plain&quot;, &quot;name&quot;: &quot;Cake parfait, bowl, plain&quot;, &quot;unitPrice&quot;: 8500, &quot;image&quot;: &quot;assets/img/prod-parfait.webp&quot;, &quot;meta&quot;: &quot;Bowl&quot;}" aria-label="Add Cake parfait, bowl, plain to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="parfait-bowl-topped">
             <span class="vrow__txt">
               <span class="vrow__name">Cake parfait, bowl, topped</span>
               <span class="vrow__meta">Bowl &middot; Layered parfait in a bowl with toppings.</span>
@@ -521,7 +520,7 @@
           <img src="assets/img/prod-savoury.webp" alt="Fried and Baked Chips" loading="lazy" width="760" height="950">
         </figure>
         <div class="vlist">
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-fried-s">
             <span class="vrow__txt">
               <span class="vrow__name">Fried chips, small</span>
               <span class="vrow__meta">Small &middot; Fried chips.</span>
@@ -529,7 +528,7 @@
             <span class="vrow__price">GH&#8373; 10.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;chips-fried-s&quot;, &quot;name&quot;: &quot;Fried chips, small&quot;, &quot;unitPrice&quot;: 1000, &quot;image&quot;: &quot;assets/img/prod-savoury.webp&quot;, &quot;meta&quot;: &quot;Small&quot;}" aria-label="Add Fried chips, small to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-fried-m">
             <span class="vrow__txt">
               <span class="vrow__name">Fried chips, medium</span>
               <span class="vrow__meta">Medium &middot; Fried chips.</span>
@@ -537,7 +536,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;chips-fried-m&quot;, &quot;name&quot;: &quot;Fried chips, medium&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/prod-savoury.webp&quot;, &quot;meta&quot;: &quot;Medium&quot;}" aria-label="Add Fried chips, medium to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-fried-l">
             <span class="vrow__txt">
               <span class="vrow__name">Fried chips, large</span>
               <span class="vrow__meta">Large &middot; Fried chips.</span>
@@ -545,7 +544,7 @@
             <span class="vrow__price">GH&#8373; 70.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;chips-fried-l&quot;, &quot;name&quot;: &quot;Fried chips, large&quot;, &quot;unitPrice&quot;: 7000, &quot;image&quot;: &quot;assets/img/prod-savoury.webp&quot;, &quot;meta&quot;: &quot;Large&quot;}" aria-label="Add Fried chips, large to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-baked-s">
             <span class="vrow__txt">
               <span class="vrow__name">Baked chips, small</span>
               <span class="vrow__meta">Small &middot; Baked chips.</span>
@@ -553,7 +552,7 @@
             <span class="vrow__price">GH&#8373; 10.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;chips-baked-s&quot;, &quot;name&quot;: &quot;Baked chips, small&quot;, &quot;unitPrice&quot;: 1000, &quot;image&quot;: &quot;assets/img/prod-savoury.webp&quot;, &quot;meta&quot;: &quot;Small&quot;}" aria-label="Add Baked chips, small to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-baked-m">
             <span class="vrow__txt">
               <span class="vrow__name">Baked chips, medium</span>
               <span class="vrow__meta">Medium &middot; Baked chips.</span>
@@ -561,7 +560,7 @@
             <span class="vrow__price">GH&#8373; 35.00</span>
             <button type="button" class="add-btn" data-add="{&quot;id&quot;: &quot;chips-baked-m&quot;, &quot;name&quot;: &quot;Baked chips, medium&quot;, &quot;unitPrice&quot;: 3500, &quot;image&quot;: &quot;assets/img/prod-savoury.webp&quot;, &quot;meta&quot;: &quot;Medium&quot;}" aria-label="Add Baked chips, medium to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
           </div>
-          <div class="vrow">
+          <div class="vrow" data-sku="chips-baked-l">
             <span class="vrow__txt">
               <span class="vrow__name">Baked chips, large</span>
               <span class="vrow__meta">Large &middot; Baked chips.</span>
@@ -933,7 +932,7 @@
         <h2>Not sure what to choose?</h2>
         <p>Send us the occasion and the date. The kitchen will suggest a cake, confirm the price, and arrange pickup or delivery within Tamale.</p>
       </div>
-      <div class="cta-band__actions"><a class="btn btn--gold" href="https://wa.me/233554520532?text=Hello%20Mystery%20Bakebite%2C%20I%27d%20like%20to%20discuss%20a%20celebration%20cake.%20My%20occasion%20and%20date%20are%3A" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.2-1.3c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.6 13.5 3.6 12 3.6 7.4 7.4 3.6 12 3.6S20.4 7.4 20.4 12 16.6 20.2 12 20.2z"/></svg> Ask the Baker</a><a class="btn btn--glass" href="contact.html">Contact Us</a></div>
+      <div class="cta-band__actions"><a class="btn btn--gold" href="#" data-contact-link="whatsapp" data-contact-msg="Hello Mystery Bakebite, I&#x27;d like to discuss a celebration cake. My occasion and date are:" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .2.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.2-1.3c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.6 13.5 3.6 12 3.6 7.4 7.4 3.6 12 3.6S20.4 7.4 20.4 12 16.6 20.2 12 20.2z"/></svg> Ask the Baker</a><a class="btn btn--glass" href="contact.html">Contact Us</a></div>
     </div>
   </div>
 </section>
@@ -967,7 +966,6 @@
           <li><a href="classes.html">Classes</a></li>
           <li><a href="products.html">Products</a></li>
           <li><a href="contact.html">Contact Us</a></li>
-          <li><a href="account.html">My Account</a></li>
         </ul>
       </nav>
 
@@ -976,29 +974,29 @@
         <ul class="footer__contact">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 006.5 6.5L17 13l4 1.5v3a2 2 0 01-2.2 2A17 17 0 014 5.2 2 2 0 016.5 3z"/></svg>
-            <a href="https://wa.me/233554520532" target="_blank" rel="noopener noreferrer" aria-label="Chat with Mystery Bakebite on WhatsApp">+233 55 452 0532</a>
+            <a href="#" data-contact-link="whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Chat with Mystery Bakebite on WhatsApp"><span data-contact="phone"></span></a>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
-            <a href="mailto:mysterybakebite@gmail.com" aria-label="Email Mystery Bakebite">mysterybakebite@gmail.com</a>
+            <a href="#" data-contact-link="email" aria-label="Email Mystery Bakebite"><span data-contact="email"></span></a>
           </li>
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
-            <a href="https://www.instagram.com/mysterybakebites/" target="_blank" rel="noopener noreferrer" aria-label="Mystery Bakebite on Instagram">@mysterybakebites</a>
+            <a href="#" data-contact-link="instagram" target="_blank" rel="noopener noreferrer" aria-label="Mystery Bakebite on Instagram"><span data-contact="instagramHandle"></span></a>
           </li>
         </ul>
       </div>
 
       <div class="footer__col">
         <h4>Visit &amp; hours</h4>
-        <p>Monday to Sunday<br>8:00am &ndash; 7:00pm</p>
-        <p style="margin-top:.7rem">Tamale, Northern Region, Ghana</p>
+        <p><span data-contact="hoursDays"></span><br><span data-contact="hoursTime"></span></p>
+        <p style="margin-top:.7rem"><span data-contact="address"></span></p>
       </div>
     </div>
 
     <div class="footer__bottom">
       <p class="legal">
-        &copy; <span id="year">2026</span> Mystery Bakebite &middot; Home bakery &middot; Baking school &middot; Tamale, Ghana.
+        &copy; <span id="year">2026</span> <span data-contact="businessName"></span> &middot; <span data-contact="tagline"></span> &middot; <span data-contact="addressShort"></span>.
       </p>
       <a class="footer__top" href="#top">
         Back to top
@@ -1008,11 +1006,13 @@
   </div>
 </footer>
 
-<script src="assets/js/config.js?v=49" defer></script>
-<script src="assets/js/supabase.js?v=49" defer></script>
-<script src="assets/js/main.js?v=49" defer></script>
-<script src="assets/js/cart.js?v=49" defer></script>
-<script src="assets/js/builder.js?v=49" defer></script>
+<script src="assets/js/config.js?v=51" defer></script>
+<script src="assets/js/contact.js?v=51" defer></script>
+<script src="assets/js/supabase.js?v=51" defer></script>
+<script src="assets/js/main.js?v=51" defer></script>
+<script src="assets/js/cart.js?v=51" defer></script>
+<script src="assets/js/catalogue-sync.js?v=51" defer></script>
+<script src="assets/js/builder.js?v=51" defer></script>
 <div class="cart-drawer" id="cart-drawer" data-scope="product" aria-hidden="true">
   <aside class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
     <div class="cart-head">
@@ -1040,7 +1040,7 @@
         Checkout product order
       </a>
       <p class="cart-other" data-cart-other hidden></p>
-      <a class="btn btn--ghost btn--sm" href="https://wa.me/233554520532?text=Hello%20Mystery%20Bakebite%2C%20I%27d%20like%20to%20ask%20about%20a%20product%20order." target="_blank" rel="noopener noreferrer" style="justify-content:center;margin-top:8px">
+      <a class="btn btn--ghost btn--sm" href="#" data-contact-link="whatsapp" data-contact-msg="Hello Mystery Bakebite, I&#x27;d like to ask about a product order." target="_blank" rel="noopener noreferrer" style="justify-content:center;margin-top:8px">
         Or ask on WhatsApp
       </a>
       <div class="cart-foot__row">

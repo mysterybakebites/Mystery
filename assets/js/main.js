@@ -200,53 +200,6 @@
   var ICON_DASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>';
   var ICON_SIGNOUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
 
-  var ICON_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0115 0"/></svg>';
-
-  function escapeNavText(t) {
-    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    });
-  }
-
-  /* Customer account affordance in the header. The Dashboard button above stays
-     reserved for verified administrators; this link only ever opens account.html. */
-  function applyCustomerNav() {
-    var navActions = document.querySelector('.nav-actions');
-    if (!navActions) return;
-    var link = navActions.querySelector('[data-customer-nav]');
-    if (!link) {
-      link = document.createElement('a');
-      link.className = 'account-nav-link';
-      link.setAttribute('data-customer-nav', 'true');
-      link.href = 'account.html';
-      var cartBtn = navActions.querySelector('.cart-btn');
-      if (cartBtn) navActions.insertBefore(link, cartBtn);
-      else navActions.appendChild(link);
-    }
-    var isAdmin = !!(window.MB && typeof window.MB.isAdmin === 'function' && window.MB.isAdmin());
-    if (isAdmin) {
-      link.hidden = true;
-      link.setAttribute('hidden', '');
-      return;
-    }
-    link.hidden = false;
-    link.removeAttribute('hidden');
-    var signedIn = !!(window.MB && typeof window.MB.isSignedIn === 'function' && window.MB.isSignedIn());
-    if (signedIn) {
-      var nameRaw = (window.MB && typeof window.MB.customerDisplayName === 'function' && window.MB.customerDisplayName()) || 'My account';
-      var first = String(nameRaw).split(/[\s@]+/)[0].slice(0, 14) || 'Account';
-      link.classList.add('is-signed-in');
-      link.innerHTML = ICON_USER + '<span>' + escapeNavText(first).toUpperCase() + '</span>';
-      link.setAttribute('aria-label', 'Open your customer account');
-      link.setAttribute('title', 'My account');
-    } else {
-      link.classList.remove('is-signed-in');
-      link.innerHTML = ICON_USER + '<span>SIGN IN</span>';
-      link.setAttribute('aria-label', 'Sign in to your customer account');
-      link.setAttribute('title', 'Sign in');
-    }
-  }
-
   function applyAuthNavDOM(isAdmin) {
     var isAdminPage = current === 'admin.html';
     var navSignin = document.querySelector('.nav-actions .signin-link:not([data-extra-logout])');
@@ -349,16 +302,13 @@
   }
 
   function syncAuthNav(overrideIsAdmin) {
-    applyCustomerNav();
     if (typeof overrideIsAdmin === 'boolean') {
       applyAuthNavDOM(overrideIsAdmin);
-      applyCustomerNav();
       return;
     }
     var hasSession = !!(window.MB && typeof window.MB.isSignedIn === 'function' && window.MB.isSignedIn());
     if (!hasSession) {
       applyAuthNavDOM(false);
-      applyCustomerNav();
       return;
     }
     var syncImmediate = !!(window.MB && typeof window.MB.isAdmin === 'function' && window.MB.isAdmin());
@@ -366,7 +316,6 @@
     if (window.MB && typeof window.MB.verifyAdminSession === 'function') {
       window.MB.verifyAdminSession().then(function (res) {
         applyAuthNavDOM(!!(res && res.isAdmin));
-        applyCustomerNav();
       });
     }
   }
@@ -399,7 +348,6 @@
 
   window.syncMBAuthNav = syncAuthNav;
   window.addEventListener('mb-auth-changed', function (ev) {
-    applyCustomerNav();
     var detail = ev && ev.detail;
     if (detail && typeof detail.isAdmin === 'boolean') {
       syncAuthNav(detail.isAdmin);

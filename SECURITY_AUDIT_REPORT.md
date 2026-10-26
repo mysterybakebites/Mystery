@@ -141,12 +141,62 @@ new findings and fixes:
 
 | Severity | Finding | Status |
 | --- | --- | --- |
-| Critical | Anonymous order creation: the order RPC accepted a payload with no session, so any script could create unlimited orders and fill the kitchen queue | Fixed — `api_place_order` now requires `auth.uid()` **and** a confirmed e-mail, and returns `auth_required` / `email_not_verified` |
+| Critical | Anonymous order creation: the order RPC accepted a payload with no session, so any script could create unlimited orders and fill the kitchen queue | **Reopened by design, then re-contained** — see §6. Anonymous order creation is now an accepted product requirement; mitigations are server-side re-pricing, a per-phone hourly cap, and an idempotency key. Residual risk documented |
 | Critical | Client-trusted prices: `unitPrice`, `lineTotal`, `discount` and `customerId` were taken from the browser; unknown SKUs fell back to the browser price | Fixed — prices are re-read from `products` / `classes`, unknown SKUs are rejected, and the order total is computed server-side |
 | Critical | Custom-cake pricing existed only in the browser, so a crafted `spec` could request any amount | Fixed — server-side allow-list for type, variety, size, decoration, flavour and add-ons |
 | High | No `customer_id` on orders → order history could not be scoped to a person, and IDOR protection did not exist | Fixed — `orders.customer_id`, `order_items.customer_id`, `payments.customer_id`, RLS scoped to `auth.uid()` |
 | High | Customer could reach the admin status endpoint and change an order to `confirmed`/`completed` | Fixed — RBAC check plus allowed-status list, immutability of totals/owner, and a GH₵ 700 verification gate |
 | High | `advance_threshold` default of GH₵ 150.00 contradicted the confirmed >GH₵ 700.00 rule | Fixed in both the migration default and a corrective `UPDATE` |
-| Medium | No customer account page, no password recovery, no verified-email requirement | Fixed — `account.html` + `assets/js/account.js`, Supabase Auth recovery/resend flows |
+| Medium | No customer account page, no password recovery, no verified-email requirement | **Closed as won't-fix** — customer accounts were removed from the product on 25 Oct 2026. There is no sign-up, no password and therefore no recovery flow to build. `account.html` is an unlinked orphan; the customer RPCs remain defined and session-gated |
 | Medium | Two migration files disagreed on column names and types | Contained — compatibility shim added; still requires a human decision (see §10.3 of the new document) |
 | Low | `order_status` lacked a `ready` value used by the dashboard UI | Fixed — constraint now includes `ready` |
+
+---
+
+## 6. Guest Checkout — Accepted Risk & Compensating Controls (25 Oct 2026)
+
+The 23 Oct review closed anonymous order creation by requiring a session plus a
+confirmed e-mail. On 25 Oct the product decision was reversed: **customers must be
+able to order without registering or signing in**, and every customer-facing sign-in
+entry point was removed from the site. This section records what replaced the gate,
+so the reversal is a documented decision rather than a silent regression.
+
+### What is no longer enforced
+
+- `auth.uid()` may be `NULL`. Orders are stored with `customer_id = NULL`.
+- There is no verified-e-mail precondition. `api_place_order` no longer returns
+  `auth_required` or `email_not_verified`.
+- `account.html` and the customer RPCs are unreachable from the UI. Nothing was
+  deleted, so re-enabling accounts later is a UI change, not a rewrite.
+
+### Compensating controls (all server-side, none trusted from the browser)
+
+| Control | Where | What it stops |
+|---|---|---|
+| Catalogue re-read and re-price | `api_place_order` steps 4–5 | A crafted payload naming a low price, an unknown SKU, or an unpublished item |
+| Custom-cake allow-list + server recompute | `api_place_order` step 6 | Arbitrary custom-spec pricing |
+| Order-date validation against max `prep_days` | `api_place_order` step 7 | Back-dated or impossible orders |
+| Advance-payment threshold, enforced in SQL | `api_place_order` step 8 | Cash methods above GH₵ 700 / quoted cakes |
+| Idempotency key, unique index, phone match on replay | `orders.idempotency_key` | Double-submits; handing a guessed key back to a *different* guest |
+| Guest throttle: 5 orders/hour per normalised phone | `api_place_order` | Casual flooding from one number |
+| `pg_sleep(0.35)` on failed lookup | `api_lookup_order` | Reference enumeration |
+| Admin-only reads; proofs in Storage with admin-only read | RLS + Storage policy | Guests reading anyone else's order or evidence |
+| Payment stays `pending_verification` until an admin confirms | `api_admin_verify` | Self-declared payment |
+
+### Residual risk — stated plainly
+
+1. **The guest throttle is keyed on a phone number the attacker controls.** Rotating
+   numbers defeats it. A script can still fill the kitchen queue with pending orders.
+   The cost is bounded (each order is real in the DB and visible to the admin, who
+   rejects it) but it is not prevented.
+2. **No CAPTCHA or proof-of-work.** Adding one changes the checkout flow the user
+   asked to keep "as few steps as possible", so it was not added unilaterally.
+3. **Guest orders have no owner to notify.** If a guest mistypes their phone, the
+   order is unreachable except via the confirmation token. The kitchen sees it and
+   can act, but the customer may not.
+
+**Recommendation if abuse is observed:** enable Supabase's built-in rate limiting on
+the `/rest/v1/rpc/api_place_order` path at the edge, or add a Cloudflare Turnstile
+token to the checkout form and verify it in an Edge Function before calling the RPC.
+Neither is implemented here. This document does **not** claim the site is free of
+order-spam risk.

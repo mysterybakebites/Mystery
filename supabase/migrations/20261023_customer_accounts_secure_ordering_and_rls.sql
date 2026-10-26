@@ -666,6 +666,9 @@ DECLARE
   v_uid           UUID := auth.uid();
   v_auth_email    TEXT;
   v_confirmed_at  TIMESTAMPTZ;
+  v_is_guest      BOOLEAN := TRUE;
+  v_recent_orders INTEGER := 0;
+  v_same_phone    BOOLEAN;
   v_kind          TEXT := CASE WHEN lower(coalesce(p_kind, 'product')) = 'class' THEN 'class' ELSE 'product' END;
   v_idem          TEXT := nullif(btrim(coalesce(p_idem, p_payload->>'idemKey', '')), '');
   v_existing      public.orders%ROWTYPE;
@@ -704,42 +707,59 @@ DECLARE
   v_pay_status    TEXT;
   v_adv_req       BOOLEAN := FALSE;
 BEGIN
-  -- 1. Require authenticated session
-  IF v_uid IS NULL THEN
-    RETURN jsonb_build_object(
-      'ok', FALSE,
-      'auth', TRUE,
-      'code', 'auth_required',
-      'error', 'Please sign in or create a customer account before placing an order.'
-    );
+  -- 1. Guest checkout is permitted. No customer account or session is required.
+  --    A signed-in account is recognised and linked to the order when present,
+  --    but it is never a precondition for ordering.
+  v_is_guest := (v_uid IS NULL);
+
+  IF NOT v_is_guest THEN
+    SELECT lower(btrim(u.email)), u.email_confirmed_at
+    INTO v_auth_email, v_confirmed_at
+    FROM auth.users u
+    WHERE u.id = v_uid;
+
+    IF NOT FOUND THEN
+      -- A stale or forged JWT must not create an order owned by a phantom
+      -- account. Fall back to guest rather than failing the customer's order.
+      v_uid := NULL;
+      v_is_guest := TRUE;
+      v_auth_email := NULL;
+    END IF;
   END IF;
 
-  -- 2. Verify email confirmation status in auth.users
-  SELECT lower(btrim(u.email)), u.email_confirmed_at
-  INTO v_auth_email, v_confirmed_at
-  FROM auth.users u
-  WHERE u.id = v_uid;
+  -- E-mail confirmation is NOT required to order. It only determines whether the
+  -- order belongs to a verified account for order-history purposes.
 
-  IF NOT FOUND THEN
-    RETURN jsonb_build_object('ok', FALSE, 'auth', TRUE, 'code', 'auth_required', 'error', 'Invalid authentication session.');
-  END IF;
-
-  IF v_confirmed_at IS NULL THEN
-    RETURN jsonb_build_object(
-      'ok', FALSE,
-      'code', 'email_not_verified',
-      'error', 'Please verify your email address before placing an order.'
-    );
-  END IF;
-
-  -- 3. Idempotency check (scoped to the authenticated customer)
+  -- 3. Idempotency check.
+  --    Scoped with IS NOT DISTINCT FROM so guest orders (customer_id IS NULL) are
+  --    matched correctly instead of silently failing the comparison.
   IF v_idem IS NOT NULL THEN
     SELECT * INTO v_existing
     FROM public.orders o
     WHERE o.idempotency_key = v_idem
-      AND o.customer_id = v_uid;
+      AND o.customer_id IS NOT DISTINCT FROM v_uid;
 
     IF FOUND THEN
+      -- Anti-replay: idempotency keys are globally UNIQUE, so without this check a
+      -- guest who guessed another guest's key would be handed that order's token,
+      -- and therefore the ability to read and submit payment proof for it.
+      -- Only the same phone number may collect the token for a guest order.
+      IF v_is_guest THEN
+        v_same_phone := (
+          regexp_replace(coalesce(v_existing.phone, ''), '\D', '', 'g')
+          = regexp_replace(
+              left(btrim(coalesce(p_payload->'customer'->>'phone', p_payload->>'phone', '')), 24),
+              '\D', '', 'g')
+        );
+        IF NOT v_same_phone THEN
+          RETURN jsonb_build_object(
+            'ok', FALSE,
+            'code', 'idempotency_conflict',
+            'error', 'That request could not be completed. Please submit the order again.'
+          );
+        END IF;
+      END IF;
+
       RETURN jsonb_build_object(
         'ok', TRUE,
         'deduplicated', TRUE,
@@ -755,7 +775,9 @@ BEGIN
 
   v_name       := left(btrim(coalesce(p_payload->'customer'->>'name', p_payload->>'name', '')), 120);
   v_phone      := left(btrim(coalesce(p_payload->'customer'->>'phone', p_payload->>'phone', '')), 24);
-  v_email      := v_auth_email;
+  v_email      := CASE WHEN v_is_guest
+                        THEN left(btrim(coalesce(p_payload->'customer'->>'email', p_payload->>'email', '')), 160)
+                        ELSE coalesce(v_auth_email, '') END;
   v_fulfil     := CASE WHEN coalesce(p_payload->>'fulfilment', 'pickup') = 'delivery' THEN 'delivery' ELSE 'pickup' END;
   v_address    := left(btrim(coalesce(p_payload->>'address', '')), 300);
   v_event_date := btrim(coalesce(p_payload->>'eventDate', p_payload->>'preferredDate', ''));
@@ -764,6 +786,29 @@ BEGIN
 
   IF char_length(v_name) < 2 OR char_length(regexp_replace(v_phone, '\D', '', 'g')) NOT BETWEEN 7 AND 15 THEN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'invalid_customer', 'error', 'Please enter a valid full name and reachable phone number.');
+  END IF;
+
+  IF v_email <> '' AND v_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[A-Za-z]{2,}$' THEN
+    RETURN jsonb_build_object('ok', FALSE, 'code', 'invalid_email', 'error', 'That e-mail address does not look right. You can also leave it blank.');
+  END IF;
+
+  -- Guest anti-abuse throttle: the RPC is executable by anon, so cap how many
+  -- unauthenticated orders a single phone number can create per hour. Orders from
+  -- a signed-in account are not throttled here (Supabase Auth rate limits apply).
+  IF v_is_guest THEN
+    SELECT count(*) INTO v_recent_orders
+    FROM public.orders o
+    WHERE o.customer_id IS NULL
+      AND regexp_replace(o.phone, '\D', '', 'g') = regexp_replace(v_phone, '\D', '', 'g')
+      AND o.created_at > NOW() - INTERVAL '1 hour';
+
+    IF v_recent_orders >= 5 THEN
+      RETURN jsonb_build_object(
+        'ok', FALSE,
+        'code', 'rate_limited',
+        'error', 'Several orders have just been placed with this phone number. Please wait a little while, or message the kitchen directly.'
+      );
+    END IF;
   END IF;
 
   IF v_kind = 'product' AND v_fulfil = 'delivery' AND char_length(v_address) < 6 THEN
@@ -978,12 +1023,15 @@ BEGIN
     );
   END IF;
 
-  -- Update customer profile phone/name if blank
-  UPDATE public.customer_profiles
-  SET full_name  = CASE WHEN char_length(btrim(full_name)) < 2 THEN v_name ELSE full_name END,
-      phone      = CASE WHEN char_length(btrim(phone)) < 7 THEN v_phone ELSE phone END,
-      updated_at = NOW()
-  WHERE user_id = v_uid;
+  -- Update the customer profile phone/name if blank (signed-in customers only;
+  -- guests have no profile row and user_id = NULL would match nothing anyway).
+  IF v_uid IS NOT NULL THEN
+    UPDATE public.customer_profiles
+    SET full_name  = CASE WHEN char_length(btrim(full_name)) < 2 THEN v_name ELSE full_name END,
+        phone      = CASE WHEN char_length(btrim(phone)) < 7 THEN v_phone ELSE phone END,
+        updated_at = NOW()
+    WHERE user_id = v_uid;
+  END IF;
 
   RETURN jsonb_build_object(
     'ok', TRUE,
@@ -1218,6 +1266,16 @@ BEGIN
 END $$;
 
 -- -----------------------------------------------------------------------------
+-- 7b-3. Guest checkout columns
+--   whatsapp_number : the baker's WhatsApp number for new-order alerts.
+--   notified_at     : when the alert was dispatched, so retries cannot double-send.
+--   IF NOT EXISTS keeps this safe on a database built before these existed.
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE public.settings ADD COLUMN IF NOT EXISTS whatsapp_number TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.orders   ADD COLUMN IF NOT EXISTS notified_at     TIMESTAMPTZ;
+
+-- -----------------------------------------------------------------------------
 -- 7c. Ownership-aware order read RPC
 --     A customer may open their own order by reference alone; anybody else must
 --     present the order token. Administrators with order permission may read any.
@@ -1244,10 +1302,18 @@ BEGIN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'not_found', 'error', 'Order not found.');
   END IF;
 
+  -- Authorisation model:
+  --   * The order belongs to an account AND a different account is signed in
+  --     -> refuse, even if that caller somehow holds the token.
+  --   * Otherwise the token is the capability (guest checkout), and an
+  --     administrator with order permission may read any order.
   IF NOT (
-       (v_uid IS NOT NULL AND v_order.customer_id = v_uid)
-       OR (v_tok <> '' AND v_tok = v_order.token)
-       OR (public.has_admin_permission('orders'))
+       (public.has_admin_permission('orders'))
+       OR (v_uid IS NOT NULL AND v_order.customer_id = v_uid)
+       OR (
+            (v_uid IS NULL OR v_order.customer_id IS NULL)
+            AND v_tok <> '' AND v_tok = v_order.token
+          )
      ) THEN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'token',
       'error', 'That order link is missing or has an invalid security token.');
@@ -1257,7 +1323,7 @@ BEGIN
 
   RETURN jsonb_build_object(
     'ok', TRUE,
-    'order', to_jsonb(v_order) - 'token' - 'token_hash',
+    'order', to_jsonb(v_order) - 'token',
     'kind', v_order.kind,
     'momo', CASE WHEN coalesce(v_settings.momo_verified, FALSE)
                  THEN jsonb_build_object(
@@ -1309,9 +1375,14 @@ BEGIN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'not_found', 'error', 'Order not found.');
   END IF;
 
+  -- Same model as api_order: an account-owned order is only reachable by that
+  -- account (or an administrator); guest orders are reachable by token.
   IF NOT (
        (v_uid IS NOT NULL AND v_order.customer_id = v_uid)
-       OR (v_tok <> '' AND v_tok = v_order.token)
+       OR (
+            (v_uid IS NULL OR v_order.customer_id IS NULL)
+            AND v_tok <> '' AND v_tok = v_order.token
+          )
      ) THEN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'token',
       'error', 'Unauthorised payment submission: invalid order token or account.');

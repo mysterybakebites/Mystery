@@ -189,6 +189,9 @@
     return (neg ? '\u2212 ' : '') + 'GH\u20B5 ' + parts.join('.');
   }
 
+  /* Exposed so other modules format money identically instead of re-inventing it. */
+  if (window.MB) window.MB.formatMoney = money;
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];

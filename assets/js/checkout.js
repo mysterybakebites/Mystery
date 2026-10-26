@@ -648,78 +648,21 @@
     return false;
   }
 
-  /* ---------- account requirement ----------
-     A verified, signed-in customer account is required before an order can be
-     submitted. The redirect is a convenience: the database RPC re-checks the
-     session and e-mail verification independently. */
-  var ACCOUNT_PAGE = 'account.html';
-  var REDIRECT_KEY = 'mb-account-return-v1';
-
-  function signedIn() {
-    return !!(window.MB && typeof window.MB.isCustomerSignedIn === 'function' && window.MB.isCustomerSignedIn());
-  }
-
-  function currentActor() {
-    if (!window.MB) return null;
-    try {
-      if (typeof window.MB.currentActor === 'function') return window.MB.currentActor();
-    } catch (e) {}
-    return null;
-  }
-
-  function rememberReturnTo() {
-    try {
-      localStorage.setItem(REDIRECT_KEY, 'checkout.html');
-    } catch (e) {}
-  }
-
-  function goToAccount(reason) {
-    rememberReturnTo();
-    var target = ACCOUNT_PAGE + '?next=checkout.html';
-    if (reason) target += '&reason=' + encodeURIComponent(reason);
-    window.location.replace(target);
-  }
-
-  function renderAccountBar() {
-    var bar = document.getElementById('checkout-account-bar');
-    var text = document.getElementById('checkout-account-text');
-    if (!bar || !text) return;
-    if (!signedIn()) {
-      bar.hidden = true;
-      return;
-    }
-    var actor = currentActor() || {};
-    var label = actor.fullName || (window.MB.customerDisplayName ? window.MB.customerDisplayName() : '') || actor.email || 'you';
-    bar.hidden = false;
-    text.innerHTML = 'Ordering as <strong>' + String(label).replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    }) + '</strong>' + (actor.email ? ' &middot; ' + String(actor.email).replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    }) : '');
-  }
-
-  function prefillFromAccount() {
-    var actor = currentActor();
-    if (!actor) return;
-    if (el.name && !el.name.value) el.name.value = actor.fullName || '';
-    if (el.phone && !el.phone.value) el.phone.value = actor.phone || '';
-    if (el.email) {
-      el.email.value = actor.email || '';
-      el.email.readOnly = true;
-      el.email.setAttribute('readonly', 'readonly');
-    }
-  }
+  /* ---------- guest checkout ----------
+     No account, no session, no sign-in step. The customer fills in their own
+     contact and delivery details, and the order is authorised afterwards by its
+     reference and private security token rather than by a login. */
 
   function handleAuthGateError(data) {
     if (!data) return false;
-    if (data.code === 'auth_required') {
-      setTimeout(function () { goToAccount('signin_required'); }, 1200);
-      alertBox('error', 'Please sign in to your customer account to place this order. Taking you to sign in…');
+    /* Guest checkout means these should no longer occur; treat them as an
+       ordinary recoverable error rather than bouncing the customer away. */
+    if (data.code === 'rate_limited') {
+      alertBox('error', esc(data.error || 'Please wait a moment before submitting another order.'));
       return true;
     }
-    if (data.code === 'email_not_verified') {
-      alertBox('error', esc(data.error || 'Please verify your email address before ordering.') +
-        ' <a href="account.html?verify=1">Resend the confirmation email</a>.');
+    if (data.code === 'idempotency_conflict') {
+      alertBox('error', esc(data.error || 'Please submit the order again.'));
       return true;
     }
     return false;
@@ -729,11 +672,6 @@
   function submit() {
     if (state.submitting) return;
     clearAlert();
-
-    /* Re-check the session immediately before creating the order. */
-    if (!signedIn()) {
-      return goToAccount('signin_required');
-    }
 
     var name = (el.name.value || '').trim();
     var phone = (el.phone.value || '').trim();
@@ -818,6 +756,24 @@
     var ref = order.ref;
     state.placedOrder = order;
     state.token = data.token || '';
+
+    /* Alert the baker immediately. This is fire-and-forget: the order is already
+       saved, and a failed notification must never affect the customer. If the
+       automatic send is unavailable, offer a one-tap WhatsApp link instead. */
+    (function () {
+      var box = document.getElementById('checkout-wa-fallback');
+      if (!window.MB || typeof window.MB.notifyBaker !== 'function') return;
+      window.MB.notifyBaker(ref, state.token, order).then(function (res) {
+        if (res && res.sent) return;
+        if (!box) return;
+        var link = (typeof window.MB.whatsappOrderLink === 'function') ? window.MB.whatsappOrderLink(order) : '';
+        if (!link) return;
+        box.hidden = false;
+        box.innerHTML = '<p class="checkout-wa-fallback">' +
+          '<a class="btn btn--gold" href="' + link + '" target="_blank" rel="noopener">Send the order alert to the baker on WhatsApp</a>' +
+          '<span class="checkout-wa-fallback__note">Tap once so the bakery is notified right away. Your order is already recorded either way.</span></p>';
+      }).catch(function () {});
+    })();
     var method = state.payment || order.paymentMethod || 'momo';
     var isAdvance = !!window.MBPay.advanceMethods[method];
     var totalTxt = money(order.total);
@@ -1273,23 +1229,6 @@
       return;
     }
 
-    /* Customer accounts are required before checkout. A visitor without a
-       verified session is sent to the account page, and the cart is preserved
-       in local storage so nothing is lost while signing in. */
-    if (!signedIn()) {
-      goToAccount('signin_required');
-      return;
-    }
-
-    renderAccountBar();
-    prefillFromAccount();
-    if (window.MB && typeof window.MB.refreshCustomerProfile === 'function') {
-      window.MB.refreshCustomerProfile().then(function () {
-        renderAccountBar();
-        prefillFromAccount();
-      }).catch(function () {});
-    }
-
     renderPayments();
     renderSummary();
 
@@ -1399,15 +1338,6 @@
     window.addEventListener('mb-catalogue-updated', renderSummary);
     window.addEventListener('storage', function (e) {
       if (e.key === 'mb-local-db-v1') renderSummary();
-    });
-    window.addEventListener('mb-auth-changed', function (ev) {
-      var detail = ev && ev.detail;
-      if (detail && detail.signedIn === false) {
-        goToAccount('signed_out');
-        return;
-      }
-      renderAccountBar();
-      prefillFromAccount();
     });
     setTimeout(renderSummary, 300);
   }

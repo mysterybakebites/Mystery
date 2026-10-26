@@ -233,42 +233,14 @@
      re-check here. A booking never becomes a cash delivery order. */
   function checkCashStillEligible() { }
 
-  /* ---------- account requirement ----------
-     Class bookings are customer records too, so a verified signed-in account is
-     required. The database RPC re-checks the session and e-mail verification. */
-  var ACCOUNT_PAGE = 'account.html';
-  var REDIRECT_KEY = 'mb-account-return-v1';
-
-  function signedIn() {
-    return !!(window.MB && typeof window.MB.isCustomerSignedIn === 'function' && window.MB.isCustomerSignedIn());
-  }
-
-  function goToBookingAccount() {
-    try { localStorage.setItem(REDIRECT_KEY, 'booking.html'); } catch (e) {}
-    window.location.replace(ACCOUNT_PAGE + '?next=booking.html&reason=signin_required');
-  }
-
-  function prefillFromAccount() {
-    if (!window.MB || typeof window.MB.currentActor !== 'function') return;
-    var actor = window.MB.currentActor();
-    if (!actor) return;
-    if (el.name && !el.name.value) el.name.value = actor.fullName || '';
-    if (el.phone && !el.phone.value) el.phone.value = actor.phone || '';
-    if (el.email) {
-      el.email.value = actor.email || '';
-      el.email.readOnly = true;
-      el.email.setAttribute('readonly', 'readonly');
-    }
-  }
+  /* ---------- guest booking ----------
+     No account or sign-in step. The customer enters their own details and the
+     booking is authorised afterwards by its reference and security token. */
 
   /* ---------- submit ---------- */
   function submit() {
     if (state.submitting) return;
     clearAlert();
-
-    if (!signedIn()) {
-      return goToBookingAccount();
-    }
 
     var name = (el.name.value || '').trim();
     var phone = (el.phone.value || '').trim();
@@ -310,14 +282,8 @@
             '<button type="button" class="btn btn--gold" data-modal-close>Choose another method</button>');
           return;
         }
-        if (res.data.code === 'auth_required') {
-          alertBox('error', 'Please sign in to your customer account to book this class. Taking you to sign in…');
-          setTimeout(goToBookingAccount, 1200);
-          return;
-        }
-        if (res.data.code === 'email_not_verified') {
-          alertBox('error', esc(res.data.error || 'Please verify your email address before booking.') +
-            ' <a href="account.html?verify=1">Resend the confirmation email</a>.');
+        if (res.data.code === 'rate_limited' || res.data.code === 'idempotency_conflict') {
+          alertBox('error', esc(res.data.error || 'Please try submitting the booking again.'));
           return;
         }
         return alertBox('error', esc(res.data.error || 'The booking could not be submitted.'));
@@ -336,6 +302,27 @@
     var order = data.order;
     var ref = order.ref;
     state.token = data.token || '';
+
+    /* Alert the baker immediately, exactly as product checkout does.
+       Fire-and-forget: the booking is already saved, and a failed
+       notification must never affect the customer. If the automatic
+       send is unavailable, offer the one-tap WhatsApp link instead. */
+    (function () {
+      var box = document.getElementById('booking-wa-fallback');
+      if (!window.MB || typeof window.MB.notifyBaker !== 'function') return;
+      try {
+        window.MB.notifyBaker(ref, state.token, order).then(function (res) {
+          if (res && res.sent) return;
+          if (!box) return;
+          var link = (typeof window.MB.whatsappOrderLink === 'function') ? window.MB.whatsappOrderLink(order) : '';
+          if (!link) return;
+          box.hidden = false;
+          box.innerHTML = '<p class="checkout-wa-fallback">' +
+            '<a class="btn btn--gold" href="' + link + '" target="_blank" rel="noopener">Send the booking alert to the baker on WhatsApp</a>' +
+            '<span class="checkout-wa-fallback__note">Tap once so the bakery is notified right away. Your booking is already recorded either way.</span></p>';
+        }).catch(function () {});
+      } catch (_) { /* notification is best-effort only */ }
+    })();
     var method = state.payment;
     var isAdvance = !!window.MBPay.advanceMethods[method];
     var totalTxt = money(order.total);
@@ -719,15 +706,6 @@
       return;
     }
 
-    if (!signedIn()) {
-      goToBookingAccount();
-      return;
-    }
-
-    prefillFromAccount();
-    if (window.MB && typeof window.MB.refreshCustomerProfile === 'function') {
-      window.MB.refreshCustomerProfile().then(prefillFromAccount).catch(function () {});
-    }
 
     renderPayments();
     renderSummary();

@@ -4582,3 +4582,14 @@ input[type="date"]#co-date{
 #acct-reset-panel .field{margin-bottom:.85rem}
 .acct-strong{font-size:.74rem;line-height:1.6;color:rgba(245,230,214,.45);margin-top:-.35rem;margin-bottom:.9rem}
 .acct-strong.is-good{color:#C6E4B4}
+
+/* ---------------------------------------------------------------------------
+   Catalogue sync (assets/js/catalogue-sync.js)
+   A product row whose SKU is not in the published catalogue is shown as
+   unavailable rather than quoting a price the kitchen will not honour, and a
+   discounted price keeps the original visible but struck through.
+   --------------------------------------------------------------------------- */
+.vrow.is-unavailable .vrow__name,
+.vrow.is-unavailable .vrow__meta{opacity:.55}
+.vrow.is-unavailable .vrow__price{color:var(--muted);font-weight:500;font-size:.85rem}
+.vrow__was{opacity:.6;font-weight:400;margin-right:.25rem}

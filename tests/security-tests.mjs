@@ -155,20 +155,106 @@ async function main() {
   /* ---------------------------------------------------------------
      1. Anonymous access
      --------------------------------------------------------------- */
-  const anon = makeEnv();
+  const guestShared0 = new Map();
+  const anon = makeEnv({}, guestShared0);
+  const guestShared = new Map();   /* shared between "browser tabs" in this section */
   truthy('Anonymous: client loads in local fallback mode', anon.MB.localMode === true);
 
+  /* Guest checkout: no account, no session, no redirect. */
   const anonOrder = await anon.MB.api('/api/orders', {
     method: 'POST',
-    body: { name: 'Anon', phone: '0554520532', paymentMethod: 'cash_on_pickup', eventDate: isoOffset(3), items: [{ id: 'milky-6', qty: 1 }] }
+    body: { name: 'Anon Guest', phone: '0554520532', paymentMethod: 'cash_on_pickup', eventDate: isoOffset(3), items: [{ id: 'milky-6', qty: 1 }] }
   });
-  eq('Anonymous cannot create an order (auth_required)', [anonOrder.ok, anonOrder.code], [false, 'auth_required']);
+  truthy('Guest can place an order without an account', anonOrder.ok === true, JSON.stringify(anonOrder).slice(0, 240));
+  truthy('Guest order returns a reference', !!(anonOrder.order && /^MB-[A-Z0-9-]{4,20}$/.test(anonOrder.order.ref)), anonOrder.order && anonOrder.order.ref);
+  truthy('Guest order returns a security token', typeof anonOrder.token === 'string' && anonOrder.token.length >= 16);
+  eq('Guest order is not attached to any account', anonOrder.order && anonOrder.order.customerId, null);
+  eq('Guest order total is priced from the catalogue', anonOrder.order && anonOrder.order.total, 7500);
 
   const anonBooking = await anon.MB.api('/api/bookings', {
     method: 'POST',
-    body: { name: 'Anon', phone: '0554520532', paymentMethod: 'momo', items: [{ slug: 'bread-beginner', kind: 'class', qty: 1 }] }
+    body: { name: 'Anon Guest', phone: '0554520532', paymentMethod: 'momo', items: [{ slug: 'bread-beginner', kind: 'class', qty: 1 }] }
   });
-  eq('Anonymous cannot create a class booking', [anonBooking.ok, anonBooking.code], [false, 'auth_required']);
+  truthy('Guest can book a class without an account', anonBooking.ok === true, JSON.stringify(anonBooking).slice(0, 240));
+  truthy('Guest booking returns its own reference', !!(anonBooking.order && /^MC-[A-Z0-9-]{4,20}$/.test(anonBooking.order.ref)));
+
+  /* The token, not a session, is what authorises a guest to read their order. */
+  const anonRead = await anon.MB.api('/api/orders/' + anonOrder.order.ref + '?token=' + encodeURIComponent(anonOrder.token));
+  truthy('Guest can read their own order with the token', anonRead.ok === true, JSON.stringify(anonRead).slice(0, 200));
+  const anonReadNoToken = await anon.MB.api('/api/orders/' + anonOrder.order.ref);
+  eq('Guest cannot read the order without the token', [anonReadNoToken.ok, anonReadNoToken.code], [false, 'token']);
+  const anonReadBadToken = await anon.MB.api('/api/orders/' + anonOrder.order.ref + '?token=deadbeefdeadbeefdeadbeef');
+  eq('Guest cannot read the order with a wrong token', [anonReadBadToken.ok, anonReadBadToken.code], [false, 'token']);
+
+  /* ---------------------------------------------------------------
+     1b. Guest manual payment and proof submission
+     --------------------------------------------------------------- */
+  const guestPay = await anon.MB.api('/api/orders', {
+    method: 'POST',
+    body: { name: 'Guest Payer', phone: '0559999001', paymentMethod: 'momo', eventDate: isoOffset(3), items: [{ id: 'milky-6', qty: 1 }] }
+  });
+  truthy('Guest can place a mobile-money order', guestPay.ok === true, JSON.stringify(guestPay).slice(0, 240));
+  eq('Guest payment status starts awaiting verification', guestPay.order && guestPay.order.paymentStatus, 'awaiting_payment');
+
+  const guestProofNoToken = await anon.MB.api('/api/orders/' + guestPay.order.ref + '/proof', {
+    method: 'POST',
+    body: { reference: 'GUEST-NOTOKEN-1' }
+  });
+  eq('Guest cannot submit proof without the order token', [guestProofNoToken.ok, guestProofNoToken.code], [false, 'token']);
+
+  const guestProof = await anon.MB.api('/api/orders/' + guestPay.order.ref + '/proof?token=' + encodeURIComponent(guestPay.token), {
+    method: 'POST',
+    body: { reference: 'GUEST-MOMO-1001' }
+  });
+  truthy('Guest can submit payment proof with the order token', guestProof.ok === true, JSON.stringify(guestProof).slice(0, 240));
+  eq('Proof leaves the order at Pending Verification, not paid',
+    guestProof.order && guestProof.order.paymentStatus, 'payment_submitted');
+  truthy('Proof does NOT mark the order as verified',
+    guestProof.order && guestProof.order.paymentStatus !== 'payment_verified');
+
+  const guestProofAgain = await anon.MB.api('/api/orders/' + guestPay.order.ref + '/proof?token=' + encodeURIComponent(guestPay.token), {
+    method: 'POST',
+    body: { reference: 'GUEST-MOMO-1002' }
+  });
+  eq('Guest cannot submit a second proof while one is pending',
+    [guestProofAgain.ok, guestProofAgain.code], [false, 'duplicate_submission']);
+
+  /* Another guest must not be able to reach the order, with or without a token. */
+  const otherGuest = makeEnv({}, guestShared0);
+  const otherRead = await otherGuest.MB.api('/api/orders/' + guestPay.order.ref);
+  eq('A different guest cannot read the order without the token', [otherRead.ok, otherRead.code], [false, 'token']);
+
+  /* ---------------------------------------------------------------
+     1c. Guest abuse controls
+     --------------------------------------------------------------- */
+  const throttleEnv = makeEnv({}, new Map());
+  let lastThrottle = null;
+  for (let i = 0; i < 6; i += 1) {
+    lastThrottle = await throttleEnv.MB.api('/api/orders', {
+      method: 'POST',
+      body: { name: 'Spam Guest', phone: '0559999777', paymentMethod: 'cash_on_pickup', eventDate: isoOffset(3), items: [{ id: 'chips-fried-s', qty: 1 }] }
+    });
+  }
+  eq('Sixth guest order from one phone in an hour is rate limited',
+    [lastThrottle.ok, lastThrottle.code], [false, 'rate_limited']);
+
+  const replayEnv = makeEnv({}, new Map());
+  const replayKey = 'guest-replay-' + Date.now();
+  const replayFirst = await replayEnv.MB.api('/api/orders', {
+    method: 'POST',
+    headers: { 'Idempotency-Key': replayKey },
+    body: { name: 'Guest One', phone: '0551234001', paymentMethod: 'cash_on_pickup', eventDate: isoOffset(3), items: [{ id: 'butter-cookies-4', qty: 1 }] }
+  });
+  const replaySecond = await replayEnv.MB.api('/api/orders', {
+    method: 'POST',
+    headers: { 'Idempotency-Key': replayKey },
+    body: { name: 'Attacker', phone: '0551234002', paymentMethod: 'cash_on_pickup', eventDate: isoOffset(3), items: [{ id: 'butter-cookies-4', qty: 1 }] }
+  });
+  truthy('Guest order with a fresh idempotency key succeeds', replayFirst.ok === true, JSON.stringify(replayFirst).slice(0, 200));
+  eq('Another phone cannot replay a guest idempotency key',
+    [replaySecond.ok, replaySecond.code], [false, 'idempotency_conflict']);
+  truthy('Replayed guest order did not leak the original token',
+    !replaySecond.token || replaySecond.token !== replayFirst.token);
 
   const anonHistory = await anon.MB.api('/api/account/orders');
   eq('Anonymous cannot list order history', [anonHistory.ok, anonHistory.code], [false, 'auth_required']);
@@ -480,7 +566,13 @@ async function main() {
   record('SECURITY DEFINER functions set a search_path', !/SECURITY DEFINER\s*\n(?!\s*SET search_path)/.test(sql) || (sql.match(/SECURITY DEFINER/g) || []).length <= (sql.match(/SET search_path/g) || []).length);
   record('Threshold default is GH₵700.00 (70000 pesewas)', /advance_threshold\s+INTEGER NOT NULL DEFAULT 70000/.test(sql) || /advance_threshold = 70000/.test(sql));
   record('Above-threshold confirmation gate present', /payment_verification_required/.test(sql));
-  record('Email verification enforced inside order RPC', /email_not_verified/.test(sql));
+  record('Order RPC no longer blocks guests on auth', !/'code', 'auth_required'/i.test(
+    (sql.match(/CREATE OR REPLACE FUNCTION public\.api_place_order[\s\S]*?\nEND;\n\$\$;/) || [''])[0]
+  ));
+  record('Order RPC accepts guest orders (no e-mail verification gate)',
+    !/email_not_verified/.test(sql));
+  record('Guest orders are throttled per phone number', /rate_limited/.test(sql) && /INTERVAL '1 hour'/.test(sql));
+  record('Guest idempotency keys cannot be replayed by another phone', /idempotency_conflict/.test(sql));
 
   /* ---- canonical 20261022 migration -------------------------------------
      The two conflicting 20261022 files were merged into one. These assertions
@@ -548,8 +640,264 @@ async function main() {
   record('All HTML pages keep a Content-Security-Policy', missingCsp.length === 0, missingCsp.join(', '));
   record('account.html ships an account script', /assets\/js\/account\.js/.test(fs.readFileSync(path.join(ROOT, 'account.html'), 'utf8')));
   const checkoutSrc = fs.readFileSync(path.join(ROOT, 'assets/js/checkout.js'), 'utf8');
-  record('Checkout redirects unauthenticated visitors to the account page', /goToAccount\('signin_required'\)/.test(checkoutSrc));
-  record('Checkout re-checks the session immediately before submit', /Re-check the session immediately before creating the order/.test(checkoutSrc));
+  record('Checkout no longer redirects guests to the account page',
+    !/goToAccount\s*\(\s*'signin_required'\s*\)/.test(checkoutSrc) && !/location\.replace\([^)]*account\.html/.test(checkoutSrc));
+  record('Checkout no longer refuses to submit without a session',
+    !/if \(!signedIn\(\)\)\s*\{\s*return goToAccount/.test(checkoutSrc));
+  record('Booking page no longer redirects guests to the account page',
+    !/goToBookingAccount/.test(fs.readFileSync(path.join(ROOT, 'assets/js/booking.js'), 'utf8')));
+  record('Checkout fires the baker alert after the order is recorded',
+    /notifyBaker/.test(checkoutSrc));
+  /* Assert what the message must CONTAIN, not the exact labels, so improving
+     the wording cannot break the suite while dropping a required field can. */
+  const notifySrc = fs.readFileSync(path.join(ROOT, 'supabase/functions/notify-order/index.ts'), 'utf8');
+  const alertFields = ['Reference', 'Customer', 'Phone', 'Items', 'Total', 'Payment method', 'Payment status'];
+  const missingBrowser = alertFields.filter((f) => !new RegExp('\\*' + f + ':', 'i').test(SRC));
+  record('Browser alert carries reference, contact, items, total, method and status',
+    missingBrowser.length === 0, 'missing: ' + missingBrowser.join(', '));
+  const missingServer = alertFields.filter((f) => !new RegExp('\\*' + f + ':', 'i').test(notifySrc));
+  record('Edge Function alert carries the same fields',
+    missingServer.length === 0, 'missing: ' + missingServer.join(', '));
+  record('Alert text cannot drift between browser and server',
+    alertFields.every((f) => new RegExp('\\*' + f + ':', 'i').test(SRC) === new RegExp('\\*' + f + ':', 'i').test(notifySrc)));
+  record('Alert message includes the review-and-approve instruction',
+    /review/i.test(SRC) && /approve/i.test(SRC) && /verify/i.test(SRC));
+  record('Alert never auto-confirms an order', !/automatically confirmed|marked as paid automatically/i.test(SRC));
+  record('Alert falls back to a wa.me link when the API is unavailable',
+    /whatsappOrderLink/.test(SRC) && /wa\.me/.test(SRC));
+  record('notify-order Edge Function exists',
+    fs.existsSync(path.join(ROOT, 'supabase/functions/notify-order/index.ts')));
+  record('notify-order keeps the WhatsApp token server-side',
+    !/WHATSAPP_TOKEN\s*[:=]\s*['"][A-Za-z0-9]/.test(
+      fs.readFileSync(path.join(ROOT, 'supabase/functions/notify-order/index.ts'), 'utf8')));
+
+  /* ---- RPC coverage ------------------------------------------------------
+     The browser calls RPCs that must exist in Postgres. Earlier releases
+     shipped functions that only existed in the local fallback, which is why a
+     fresh project returned PGRST202 for api_config / api_catalogue / api_price
+     and the dashboard could not list a single order. This guard fails the
+     suite the moment a called function is not defined by a migration. */
+  const migrationSrc = fs.readdirSync(path.join(ROOT, 'supabase/migrations'))
+    .filter((f) => f.endsWith('.sql'))
+    .map((f) => fs.readFileSync(path.join(ROOT, 'supabase/migrations', f), 'utf8'))
+    .join('\n');
+
+  const definedFns = new Set(
+    [...migrationSrc.matchAll(/CREATE OR REPLACE FUNCTION public\.([a-z_]+)/g)].map((m) => m[1])
+  );
+
+  const calledFns = new Set([...SRC.matchAll(/MB\.rpc\('([a-z_]+)'/g)].map((m) => m[1]));
+  [...SRC.matchAll(/':\s*'(api_admin_[a-z_]+)'/g)].forEach((m) => calledFns.add(m[1]));
+
+  const uncovered = [...calledFns].filter((f) => !definedFns.has(f)).sort();
+  record('Every RPC the browser calls is defined by a migration',
+    uncovered.length === 0, uncovered.join(', '));
+
+  ['api_config', 'api_catalogue', 'api_price', 'api_lookup_order',
+   'api_admin_orders', 'api_admin_order', 'api_admin_dashboard', 'api_admin_settings',
+   'api_admin_catalogue', 'api_admin_discounts', 'api_admin_notifications',
+   'api_admin_product', 'api_admin_class', 'api_admin_category', 'api_admin_option'
+  ].forEach((fn) => {
+    record(`RPC ${fn} exists in a migration`, definedFns.has(fn));
+  });
+
+  /* Admin RPCs must gate on a permission check, never merely on being signed in. */
+  ['api_admin_orders', 'api_admin_order', 'api_admin_dashboard', 'api_admin_settings',
+   'api_admin_catalogue', 'api_admin_discounts', 'api_admin_notifications',
+   'api_admin_product', 'api_admin_class', 'api_admin_category', 'api_admin_option'
+  ].forEach((fn) => {
+    const re = new RegExp(
+      'FUNCTION public\\.' + fn + '[\\s\\S]{0,1400}?has_admin_permission', 'i');
+    record(`${fn} checks has_admin_permission`, re.test(migrationSrc));
+  });
+
+  record('Order serialiser never returns the order token',
+    !/order_admin_json[\s\S]{0,3000}?'token',/.test(migrationSrc));
+  record('Order lookup requires reference AND phone',
+    /api_lookup_order[\s\S]{0,2200}?regexp_replace\(o\.phone/.test(migrationSrc));
+  record('Order lookup slows failed guesses (anti-enumeration)',
+    /pg_sleep/.test(migrationSrc));
+  record('Admin settings normalises cedi input for advance_threshold',
+    /advance_threshold[\s\S]{0,600}?\* 100/.test(migrationSrc));
+
+  /* ---- No customer sign-in entry points, Baker login preserved ----------- */
+  const mainSrc = fs.readFileSync(path.join(ROOT, 'assets/js/main.js'), 'utf8');
+  const bookingSrc = fs.readFileSync(path.join(ROOT, 'assets/js/booking.js'), 'utf8');
+  const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'));
+
+  record('Header no longer renders a customer sign-in link',
+    !/applyCustomerNav/.test(mainSrc) && !/account-nav-link/.test(mainSrc));
+  record('No page links to the customer account page',
+    pages.every((f) => !/account\.html/.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))),
+    pages.filter((f) => /account\.html/.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))).join(', '));
+  /* account.html keeps its own <title>; it is the unlinked page itself. Every
+     other page must have neither a nav entry nor a footer link. */
+  record('No "My Account" nav or footer entries remain',
+    pages.filter((f) => f !== 'account.html')
+      .every((f) => !/My Account/i.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))),
+    pages.filter((f) => f !== 'account.html' && /My Account/i.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))).join(', '));
+  record('Checkout has no account bar',
+    !/checkout-account-bar/.test(fs.readFileSync(path.join(ROOT, 'checkout.html'), 'utf8')) &&
+    !/renderAccountBar/.test(checkoutSrc));
+  record('Checkout does not prefill or read a customer session',
+    !/prefillFromAccount|isCustomerSignedIn|currentActor/.test(checkoutSrc));
+  record('Booking page does not prefill or read a customer session',
+    !/prefillFromAccount|isCustomerSignedIn|currentActor/.test(bookingSrc));
+
+  /* Baker login must survive the removal. */
+  record('Footer still offers a Baker Login link', /Baker Login/.test(mainSrc));
+  /* admin.html is the login page itself, and receipt.html is a bare printable
+     page, so neither needs the hidden mobile entry. */
+  record('Mobile menu still carries the hidden admin entry',
+    pages.filter((f) => f !== 'receipt.html' && f !== 'admin.html')
+      .every((f) => /data-mobile-auth/.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))));
+  record('admin.html still has its sign-in gate', /id="admin-login"|admin-login/.test(
+    fs.readFileSync(path.join(ROOT, 'admin.html'), 'utf8')));
+  record('Admin authentication helpers are untouched',
+    /signInAdmin|verifyAdminSession/.test(SRC) && /is_verified_admin/.test(migrationSrc));
+  record('Order RPC still refuses unauthenticated admins',
+    /has_admin_permission\('orders'\)/.test(migrationSrc));
+
+  /* ------------------------------------------------------------------
+     Business contact profile — one source of truth
+     ------------------------------------------------------------------ */
+
+  const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  const contactSrc = read('assets/js/contact.js');
+  record('contact.js exists and exposes MB.contact', /MB\.contact\s*=/.test(contactSrc));
+  record('contact.js is loaded by every content page',
+    pages.filter((f) => f !== 'receipt.html')
+      .every((f) => /assets\/js\/contact\.js/.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))));
+
+  /* No page may carry a literal phone/WhatsApp/Instagram value again. The
+     Super-Administrator address on admin.html is an identity, not a contact
+     detail, so it is deliberately excluded. */
+  const contactLeaks = [];
+  for (const f of pages) {
+    const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
+    if (/wa\.me\/\d/.test(src)) contactLeaks.push(f + ': hardcoded wa.me link');
+    if (/instagram\.com\/mysterybakebites/.test(src)) contactLeaks.push(f + ': hardcoded Instagram URL');
+    if (/\+233\s*55\s*452\s*0532/.test(src)) contactLeaks.push(f + ': hardcoded display phone');
+    if (f !== 'admin.html' && /mysterybakebite@gmail\.com/.test(src)) contactLeaks.push(f + ': hardcoded email');
+    if (/mailto:mysterybakebite@gmail\.com/.test(src)) contactLeaks.push(f + ': hardcoded mailto');
+  }
+  record('No page hardcodes a contact detail', contactLeaks.length === 0, contactLeaks.join(', '));
+
+  record('Mobile menu and footer use contact placeholders',
+    pages.filter((f) => f !== 'receipt.html')
+      .every((f) => /data-contact="hours"/.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))));
+
+  record('Contact page offers a click-to-call link',
+    /data-contact-link="phone"/.test(fs.readFileSync(path.join(ROOT, 'contact.html'), 'utf8')));
+
+  /* Public read of contact details must not be a direct settings grant. */
+  record('settings is still not readable by anon',
+    /admin_only_settings/.test(migrationSrc) && /ENABLE ROW LEVEL SECURITY/.test(migrationSrc));
+  record('contact details are published through api_config only',
+    /'contact'/.test(read('supabase/migrations/20261026_business_contact_profile.sql')));
+  record('api_admin_settings validates the contact profile',
+    /invalid_phone|invalid_email|invalid_whatsapp/.test(read('supabase/migrations/20261026_business_contact_profile.sql')));
+  record('contact writes require the settings permission',
+    /has_admin_permission\('settings'\)/.test(read('supabase/migrations/20261026_business_contact_profile.sql')));
+
+  /* ------------------------------------------------------------------
+     Classes / courses loading
+     ------------------------------------------------------------------ */
+
+  const classesSrc = read('assets/js/classes.js');
+  record('classes.js renders a retry control', /classes-retry/.test(classesSrc));
+  record('classes.js distinguishes a missing RPC',
+    /PGRST202/.test(classesSrc));
+  record('classes.js handles an empty catalogue explicitly',
+    /No courses are open for booking/.test(classesSrc));
+  record('classes.js never leaves both tracks blank on failure',
+    /showFailure/.test(classesSrc) && /els\.pastry\.innerHTML = html/.test(classesSrc));
+  record('api_catalogue is defined for anonymous visitors',
+    /CREATE OR REPLACE FUNCTION public\.api_catalogue\(\)/.test(
+      read('supabase/migrations/20261024_public_read_layer.sql')));
+
+  const seedSrc = read('supabase/migrations/20261027_catalogue_repair_and_seed.sql');
+  record('catalogue seed is idempotent (ON CONFLICT DO NOTHING)',
+    /ON CONFLICT \(slug\) DO NOTHING/.test(seedSrc) && /ON CONFLICT \(sku\) DO NOTHING/.test(seedSrc));
+  record('catalogue seed adds bring_note', /bring_note/.test(seedSrc));
+  record('api_catalogue emits bringNote', /'bringNote'/.test(seedSrc));
+  record('public read policy lets anon see published classes',
+    /public_read_classes/.test(migrationSrc) && /published = TRUE OR public\.is_verified_admin\(\)/.test(migrationSrc));
+
+  /* ------------------------------------------------------------------
+     Documentation must not contradict the ordering rule.
+     Guest checkout is the only ordering model. A document that says a
+     customer account is required before ordering is wrong, and it has
+     happened before — this guard stops it coming back.
+     ------------------------------------------------------------------ */
+
+  const mdFiles = fs.readdirSync(ROOT).filter((f) => f.endsWith('.md'));
+
+  /* A line only OFFENDS if it asserts account-required ordering without any
+     negation, deprecation or historical marker on the same line. Matching
+     loosely here would produce false positives on sentences like
+     "accounts are not required", so the allowlist is explicit. */
+  const ACCOUNT_REQUIRED = [
+    /accounts?\s+(is|are)\s+required/i,
+    /(an?\s+)?account\s+is\s+required/i,
+    /requires?\s+(a\s+|an\s+)?customer\s+account/i,
+    /customers?\s+must\s+(sign\s?in|register|log\s?in)/i,
+    /must\s+sign\s?in\s+(to|before)\s+order/i,
+    /registration\s+is\s+required/i,
+    /account-required\s+checkout/i
+  ];
+  /* Deliberately narrow. A bare "before" or "old" is NOT enough: the sentence
+     "Customers must sign in before ordering" contains "before" and still asserts
+     account-required ordering. Only explicit negation or deprecation counts. */
+  const ALLOWS_HISTORY = new RegExp([
+    '\\bnot\\s+(required|needed|part)',
+    '\\bno\\s+(account|registration|sign-?in)\\b',
+    '\\bnever\\b',
+    '\\bgone\\b',
+    '\\bremoved\\b',
+    '\\bhistorical\\b',
+    'supersed',
+    '\\bstale\\b',
+    '\\boverrid',
+    '\\bN\\/A\\b',
+    '\\bundo(ne)?\\b',
+    'reversed',
+    'no longer'
+  ].join('|'), 'i');
+
+  const offenders = [];
+  for (const f of mdFiles) {
+    const lines = fs.readFileSync(path.join(ROOT, f), 'utf8').split('\n');
+    lines.forEach((line, i) => {
+      if (!ACCOUNT_REQUIRED.some((re) => re.test(line))) return;
+      if (ALLOWS_HISTORY.test(line)) return;
+      offenders.push(`${f}:${i + 1}  ${line.trim().slice(0, 90)}`);
+    });
+  }
+  record('No document asserts that a customer account is required to order',
+    offenders.length === 0, offenders.join(' | '));
+
+  /* The authoritative block must actually exist, and must say the right thing. */
+  const acctDoc = fs.readFileSync(path.join(ROOT, 'CUSTOMER_ACCOUNTS_AND_SECURITY.md'), 'utf8');
+  record('CUSTOMER_ACCOUNTS_AND_SECURITY.md carries an authoritative ORDERING RULE block',
+    /ORDERING RULE/.test(acctDoc) && /Guest checkout is the only ordering model/i.test(acctDoc));
+  record('The ORDERING RULE block states that no account is needed',
+    /order WITHOUT an account/i.test(acctDoc));
+
+  /* The two documents must agree: both must describe guest checkout. */
+  const orderingDoc = fs.readFileSync(path.join(ROOT, 'ORDERING_PAYMENT_AND_WHATSAPP.md'), 'utf8');
+  record('Ordering document and accounts document agree on guest checkout',
+    /guest\s+checkout/i.test(orderingDoc) && /guest\s+checkout/i.test(acctDoc));
+  record('Ordering document points at the authoritative block',
+    /ORDERING RULE/.test(orderingDoc));
+
+  /* And the code must match the documents: no auth gate in the checkout path. */
+  const checkoutRuntime = fs.readFileSync(path.join(ROOT, 'assets/js/checkout.js'), 'utf8');
+  const bookingRuntime = fs.readFileSync(path.join(ROOT, 'assets/js/booking.js'), 'utf8');
+  record('checkout.js contains no auth gate or redirect to account.html',
+    !/account\.html/.test(checkoutRuntime) && !/signin_required|auth_required/.test(checkoutRuntime));
+  record('booking.js contains no auth gate or redirect to account.html',
+    !/account\.html/.test(bookingRuntime) && !/signin_required|auth_required/.test(bookingRuntime));
 
   console.log(`\n=== ${passed} passed, ${failed} failed ===`);
   if (failed) {

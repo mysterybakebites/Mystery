@@ -1,0 +1,17 @@
+{
+  "name": "mystery-bakebite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mystery Bakebite — static storefront and baking school site, with a Supabase backend.",
+  "scripts": {
+    "test": "node tests/audit.mjs && node tests/security-tests.mjs && node tests/ui-tests.mjs && node tests/order-flow.mjs",
+    "test:audit": "node tests/audit.mjs",
+    "test:security": "node tests/security-tests.mjs",
+    "test:ui": "node tests/ui-tests.mjs",
+    "test:orders": "node tests/order-flow.mjs",
+    "serve": "python3 -m http.server 8000 --bind 0.0.0.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

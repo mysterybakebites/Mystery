@@ -42,9 +42,9 @@
   }
 
   var PAY_LABEL = {
-    awaiting_payment: ['Awaiting payment', 'amber', 'Payment has not been received yet.'],
-    payment_submitted: ['Payment under review', 'blue',
-      'Your payment details were received and are being checked against the funds.'],
+    awaiting_payment: ['Awaiting Payment', 'amber', 'Payment has not been received yet. Submit your payment reference or screenshot below once you have paid.'],
+    payment_submitted: ['Pending Verification', 'blue',
+      'Your payment details were received and are waiting for the baker to verify the funds. This is not yet a confirmed payment.'],
     payment_verified: ['Payment confirmed', 'green', 'The baker has verified that the payment was received.'],
     payment_rejected: ['Payment not verified', 'red', 'The details could not be matched. Please submit them again.'],
     pay_on_collection: ['Pay in person', 'grey', 'Nothing has been paid in advance.'],
@@ -52,7 +52,7 @@
   };
 
   var ORDER_LABEL = {
-    submitted: ['Submitted', 'amber', 'Waiting for the baker to review the order.'],
+    submitted: ['Pending Review', 'amber', 'The order has been received and is waiting for the baker to review it.'],
     confirmed: ['Confirmed', 'blue', 'The baker has accepted the order.'],
     in_preparation: ['In preparation', 'blue', 'Your order is being made.'],
     completed: ['Completed', 'green', 'The order has been fulfilled.'],

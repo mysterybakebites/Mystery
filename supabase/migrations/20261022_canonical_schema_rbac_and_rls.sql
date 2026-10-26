@@ -123,6 +123,10 @@ CREATE TABLE IF NOT EXISTS public.settings (
   auto_confirm              BOOLEAN NOT NULL DEFAULT TRUE,
   bundle_two_pct            INTEGER NOT NULL DEFAULT 15 CHECK (bundle_two_pct >= 0 AND bundle_two_pct <= 90),
   bundle_three_pct          INTEGER NOT NULL DEFAULT 25 CHECK (bundle_three_pct >= 0 AND bundle_three_pct <= 90),
+  -- Baker's WhatsApp number for new-order alerts (international format, digits
+  -- only, e.g. 233554520532). Empty by default: it is not the same thing as the
+  -- MoMo number, so it must be set deliberately in the dashboard.
+  whatsapp_number           TEXT NOT NULL DEFAULT '',
   updated_at                TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -206,6 +210,9 @@ CREATE TABLE IF NOT EXISTS public.orders (
   reject_reason         TEXT NOT NULL DEFAULT '',
   verified_at           TIMESTAMPTZ,
   verified_by           UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  -- When the baker's WhatsApp alert was dispatched (NULL = not yet sent).
+  -- Makes the notification idempotent across webhook and browser retries.
+  notified_at           TIMESTAMPTZ,
   events                JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()

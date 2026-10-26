@@ -1,12 +1,45 @@
-# Mystery Bakebite — Customer Accounts, Secure Ordering & Security Audit
+# Mystery Bakebite — Security Audit & (Historical) Customer Accounts Release
 
-_Last updated: 23 October 2026_
+> ## ⚠️ ORDERING RULE — READ THIS FIRST
+>
+> **Customers order WITHOUT an account. Guest checkout is the only ordering model.**
+>
+> There is no customer registration, no customer sign-in, no account page in
+> navigation, and no verified-email requirement. A visitor enters a name and a
+> phone number at checkout and orders. The database permits `auth.uid()` to be
+> `NULL` for an order.
+>
+> **This is the single authoritative statement of the ordering rule for the whole
+> project.** If any other document, comment, test or section appears to require a
+> customer account before ordering, that text is stale and this block overrides it.
+>
+> The only sign-in in the product is the **Baker Login** (`admin.html`), which is a
+> separate administrator path and remains fully enforced.
 
-This document covers the customer-account release: registration, sign-in, password
-recovery, the account area, account-required checkout, trusted order creation,
-manual-payment integrity, Row Level Security, the security test report, and the
-exact Supabase / GitHub Pages configuration that still has to be performed in your
-own accounts.
+> ### Status of this document
+>
+> **§1, §2 and the account-specific rows of §9 describe how the system worked
+> BEFORE 25 October 2026**, when accounts were mandatory. They are kept as a record
+> of the security work and are **not** a description of current behaviour.
+>
+> **§3, §4, §6, §7, §8 and §10 remain current** — the schema, RLS, grants,
+> deployment and risks are unaffected by the ordering change.
+>
+> **§5 and §11 have been updated** to the guest-checkout model.
+>
+> For the current ordering, payment and WhatsApp workflow, see
+> **`ORDERING_PAYMENT_AND_WHATSAPP.md`**, which is the second authoritative source
+> and agrees with the block above.
+
+_Account release: 23 October 2026 · Ordering model changed to guest checkout: 25 October 2026_
+
+This document covers the security work behind ordering: trusted order creation that
+re-prices everything server-side, manual-payment integrity, Row Level Security, the
+security test report, and the Supabase / GitHub Pages configuration that still has
+to be performed in your own accounts.
+
+The customer-account feature described in §1–§2 was **removed from the product** on
+25 October 2026. Customers order as guests. Those sections are history.
 
 Nothing in this document claims that the system is "completely secure". It records
 what was implemented, what was actually tested in this workspace, and what could
@@ -53,7 +86,14 @@ Each of these is addressed below; see §11 for what is still open.
 
 ---
 
-## 2. Files created, changed, removed
+## 2. Files created, changed, removed (HISTORICAL — 23 Oct 2026)
+
+> **This table records what the account release did at the time. Most of it was
+> undone on 25 October when accounts were removed.** In particular: the account
+> gate in `checkout.js` and `booking.js` is **gone**, the `auth_required` /
+> `email_not_verified` handling is **gone**, the "My Account" navigation entries
+> are **gone**, and the checkout account bar is **gone**. Do not use this table to
+> reason about current behaviour.
 
 ### Created
 
@@ -245,30 +285,45 @@ Consequences:
 
 ## 5. Application flow
 
-### Registration → verification → ordering
+### Ordering (no registration, no sign-in)
 
-1. `account.html` → **Create account** (`fullName`, `email`, `phone`, password +
-   confirmation, live strength hint).
-2. `MB.signUpCustomer()` calls `POST /auth/v1/signup` with `data: {full_name, phone}`
-   and `email_redirect_to = <site>/account.html`. **No role or privilege is placed
-   in metadata.**
-3. Supabase sends the confirmation email; the database trigger creates the profile
-   row.
-4. The customer signs in at `account.html`; `signInCustomer` stores the session with
-   the standard `mb-session-v1` key, refreshes the profile and loads history.
-5. Checkout: an unauthenticated visitor is redirected to
-   `account.html?next=checkout.html&reason=signin_required` (the cart stays in
-   `localStorage`). After sign-in the browser returns to checkout automatically.
-6. `submit()` re-checks the session, then calls `api_place_order`. In the database
-   `auth.uid()` must exist **and** `auth.users.email_confirmed_at` must be set,
-   otherwise the RPC returns `auth_required` / `email_not_verified` and nothing is
-   written.
+1. The customer browses `menu.html`, `products.html`, `classes.html` and adds items
+   to the cart. The cart lives in `localStorage` under `mb-cart-v1`.
+2. `checkout.html` (and `booking.html` for classes) opens straight onto the form.
+   **There is no auth gate and no redirect to `account.html`.** The fields are:
+   name (required), phone (required), email (optional), notes (optional), preferred
+   date, fulfilment (collect / deliver + address), and payment method.
+3. `submit()` builds the payload locally, generates an idempotency key, and calls
+   `api_place_order`. No session, token or email is required.
+4. In the database `auth.uid()` is **allowed to be null**. When it is null the order
+   is stored with `customer_id = NULL`; when a session happens to exist the order is
+   linked to it. Nothing in the browser is trusted: the RPC re-reads the catalogue,
+   re-prices every line, re-validates the custom cake spec and the date, and enforces
+   the advance-payment threshold itself.
+5. The confirmation screen shows the reference and a private **order token** link
+   (`order.html?ref=…&token=…`) so the guest can return without an account. The
+   token is never placed in the admin serialiser or any list response.
+6. Recovery path: `order.html` → **Find my order** requires the reference **and** the
+   phone number used at checkout (`api_lookup_order`), with a `pg_sleep(0.35)` on a
+   miss to blunt enumeration and no distinction between "no such reference" and
+   "wrong phone" in the response.
+
+`account.html` is no longer linked from anywhere. Customer sign-in, sign-up, profile
+and order-history screens are unreachable; the RPCs behind them
+(`api_customer_whoami`, `api_customer_orders`, `api_customer_update_profile`) remain
+defined and still require their own session, so they are inert rather than removed.
+If accounts are ever re-enabled, the pages and RPCs are still there — only the entry
+points are gone. **Baker/admin authentication is a separate path and was not
+touched.**
 
 ### Trusted order creation (`api_place_order`)
 
-1. Resolve `v_uid := auth.uid()`; reject when null or unverified.
+1. Resolve `v_uid := auth.uid()`. **Null is accepted** (guest order). An email
+   verification check is no longer applied, because there is no sign-up step.
 2. Idempotency: `(idempotency_key, customer_id)` must be unique; a repeat returns
-   the original order instead of a duplicate.
+   the original order instead of a duplicate. For guests (`customer_id IS NULL`) the
+   guard is the unique partial index on `idempotency_key` alone, so a double-tap or
+   a retried request cannot create two orders.
 3. Validate name, phone, fulfilment, address, payment method, cart size, and every
    quantity (`1..100`, whole number).
 4. Look up every product by SKU / every class by slug **in the database**; reject
@@ -396,7 +451,7 @@ have. **Blocked**: cannot be exercised here.
 | --- | --- | --- | --- |
 | A1 | Register a new customer | Passed | `Customer A is signed in` |
 | A2 | Duplicate registration does not reveal whether the address exists | Passed | generic response path in `signUpCustomer` |
-| A3 | Unverified e-mail cannot order | Passed (logic) / Not tested (live mail) | `api_place_order` returns `email_not_verified`; `email_not_verified` assertion in SQL lint |
+| A3 | ~~Unverified e-mail cannot order~~ **RULE REMOVED 25 Oct 2026** | N/A — superseded | Guest checkout means there is no e-mail to verify. `api_place_order` no longer returns `email_not_verified`; anonymous orders are accepted by design. See the ORDERING RULE block at the top of this file. |
 | A4 | Wrong credentials rejected, generic message | Passed | `invalid_credentials` branch |
 | A5 | Weak password / mismatch rejected | Passed | 3 assertions |
 | A6 | Password recovery sends a single-use link | Not tested | needs Supabase + SMTP |
@@ -484,8 +539,10 @@ have. **Blocked**: cannot be exercised here.
 
 1. **The migration has not been applied to a live database from this environment.**
    Run it against a staging project first and re-run the SQL checks in §3.
-2. **Live RLS/IDOR tests are still required** with two real Supabase accounts and
-   the anon key (the `curl` snippets in §11 give a starting point).
+2. **Live RLS/IDOR tests are still required.** "Two accounts" here means two
+   *test* identities created purely to probe access boundaries — it is **not** a
+   statement that customers need accounts. Guest ordering needs no account at all.
+   The `curl` snippets in §11 give a starting point.
 3. **Resolved: the two `20261022` migrations were merged.** They created the same
    tables with different shapes, so whichever ran first silently won:
    `orders.token` vs `token_hash`, `idempotency_key` vs `idem_key`,
@@ -547,7 +604,10 @@ have. **Blocked**: cannot be exercised here.
 ## 11. Manual attack checks to run against staging
 
 ```bash
-# 1. Anonymous order attempt — expect {"ok": false, "code": "auth_required"}
+# 1. Anonymous order attempt — expect {"ok": true, ...}.
+#    Guest checkout is the intended behaviour, so a SUCCESS here is correct.
+#    A failure with code "auth_required" means the live project is still running
+#    the OLD api_place_order. Re-run migration 20261023 (or APPLY_ALL_MIGRATIONS.sql).
 curl -s "$SUPABASE_URL/rest/v1/rpc/api_place_order" \
   -H "apikey: $ANON_KEY" -H "Content-Type: application/json" \
   -d '{"p_kind":"product","p_payload":{"items":[{"id":"milky-6","qty":1}],"paymentMethod":"cash_on_pickup","eventDate":"2030-01-01"},"p_idem":"probe-1"}'

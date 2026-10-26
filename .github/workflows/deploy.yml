@@ -25,22 +25,75 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Gate the deploy on the full local test suite (audit, security, UI,
+      # order flow). If any assertion fails, nothing is published.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tests
+        run: |
+          npm ci
+          npm test
+
+      # ---------------------------------------------------------------------
+      # Optional: override the committed config.js with repository secrets.
+      # If the secrets are absent the committed file is used as-is, so the
+      # workflow does not fail on a project that has not set them.
+      # ---------------------------------------------------------------------
       - name: Inject public Supabase configuration from Repository Secrets (if configured)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          BAKER_WHATSAPP: ${{ secrets.BAKER_WHATSAPP }}
         run: |
           if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
             cat > assets/js/config.js <<EOF
-          window.MB_CONFIG = {
+          /* Generated during deployment from repository secrets. */
+          window.MB_CONFIG = window.MB_CONFIG || {
             url: "${SUPABASE_URL}",
-            anonKey: "${SUPABASE_ANON_KEY}"
+            anonKey: "${SUPABASE_ANON_KEY}",
+            bakerWhatsApp: "${BAKER_WHATSAPP}"
           };
           EOF
-            echo "Injected SUPABASE_URL and SUPABASE_ANON_KEY into assets/js/config.js"
+            echo "Injected SUPABASE_URL, SUPABASE_ANON_KEY and (optionally) BAKER_WHATSAPP into assets/js/config.js"
           else
             echo "Using repository assets/js/config.js as-is"
           fi
+
+      # ---------------------------------------------------------------------
+      # Stage ONLY the public website.
+      #
+      # Previously the artifact path was '.', which published the whole
+      # repository to the public Pages site — including every migration file
+      # in supabase/migrations (the full RPC surface), the security test suite
+      # in tests/, the CI workflow, and the 15 MB site ZIP. None of that is
+      # secret, but none of it belongs on a public website either.
+      # ---------------------------------------------------------------------
+      - name: Stage the public site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'supabase' \
+            --exclude 'tests' \
+            --exclude 'uploads' \
+            --exclude 'node_modules' \
+            --exclude '.cache' \
+            --exclude '.npm' \
+            --exclude '*.md' \
+            --exclude '*.zip' \
+            --exclude '*.sql' \
+            --exclude '.gitignore' \
+            --exclude 'assets/js/config.example.js' \
+            --exclude 'package.json' \
+            --exclude 'package-lock.json' \
+            ./ _site/
+          echo "Staged files:"
+          find _site -type f | wc -l
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -48,7 +101,7 @@ jobs:
       - name: Upload static site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
       - name: Deploy to GitHub Pages
         id: deployment

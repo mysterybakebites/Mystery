@@ -1,0 +1,14 @@
+# Mystery Bakebite - search engine directives.
+# Public pages are indexable; transactional and admin pages are not
+# (they also carry a noindex meta tag). Note: robots.txt is only read at the
+# domain root, so on a username.github.io/<repo>/ project site the meta tags
+# are the effective control; this file takes effect on a custom domain.
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /account.html
+Disallow: /checkout.html
+Disallow: /booking.html
+Disallow: /order.html
+Disallow: /receipt.html

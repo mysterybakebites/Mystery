@@ -66,14 +66,14 @@
 
   var PAY = {
     awaiting_payment: ['Awaiting payment', 'amber'],
-    payment_submitted: ['Proof to check', 'blue'],
+    payment_submitted: ['Pending Verification', 'blue'],
     payment_verified: ['Payment verified', 'green'],
     payment_rejected: ['Not verified', 'red'],
     pay_on_collection: ['Pay on collection', 'grey'],
     not_required: ['No payment', 'grey']
   };
   var ORD = {
-    submitted: ['Submitted', 'amber'],
+    submitted: ['Pending Review', 'amber'],
     confirmed: ['Confirmed', 'blue'],
     in_preparation: ['In preparation', 'blue'],
     completed: ['Completed', 'green'],
@@ -1965,6 +1965,55 @@
           '<p class="form-note">Saving with verification ticked but any field empty clears the verified flag, so bank transfer stays switched off.</p>' +
         '</div>' +
 
+        '<div class="panel" id="biz-profile-panel">' +
+          '<h2>Business profile</h2>' +
+          '<p class="panel__hint">Every phone number, email, WhatsApp link, social account, address and opening time on the public website comes from these fields. Change one here and it updates the header, footer, Contact page, order pages, checkout and every WhatsApp button at once.</p>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-name">Business name</label><input type="text" id="bp-name" value="' + esc(c.business_name || '') + '" maxlength="120"></div>' +
+            '<div class="field"><label for="bp-tagline">Tagline</label><input type="text" id="bp-tagline" value="' + esc(c.business_tagline || '') + '" maxlength="160" placeholder="Home bakery &amp; baking school"></div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-phone">Phone for click-to-call</label><input type="tel" id="bp-phone" value="' + esc(c.business_phone || '') + '" placeholder="233554520532" inputmode="tel"><span class="form-note">Digits only, with country code and no plus sign. Used to build the tel: link.</span></div>' +
+            '<div class="field"><label for="bp-phone-display">Phone as shown on the site</label><input type="tel" id="bp-phone-display" value="' + esc(c.business_phone_display || '') + '" placeholder="+233 55 452 0532"><span class="form-note">How the number is printed. Leave blank to show + the dial number.</span></div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-email">Email address</label><input type="email" id="bp-email" value="' + esc(c.business_email || '') + '" placeholder="hello@example.com"></div>' +
+            '<div class="field"><label for="bp-wa">WhatsApp number</label><input type="tel" id="bp-wa" value="' + esc(c.whatsapp_contact || '') + '" placeholder="233554520532" inputmode="tel"><span class="form-note">Powers every WhatsApp button. Digits only, no plus sign.</span></div>' +
+          '</div>' +
+          '<div class="field"><label for="bp-wa-msg">Default WhatsApp message</label><input type="text" id="bp-wa-msg" value="' + esc(c.whatsapp_message || '') + '" maxlength="400" placeholder="Hello, I would like to place an order."><span class="form-note">Pre-filled into the chat when a button does not carry its own message.</span></div>' +
+          '<h3 style="margin:1.4rem 0 .6rem;font-size:1rem">Location</h3>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-addr1">Address line 1</label><input type="text" id="bp-addr1" value="' + esc(c.address_line1 || '') + '" maxlength="160"></div>' +
+            '<div class="field"><label for="bp-addr2">Address line 2</label><input type="text" id="bp-addr2" value="' + esc(c.address_line2 || '') + '" maxlength="160"></div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-city">City or town</label><input type="text" id="bp-city" value="' + esc(c.address_city || '') + '" maxlength="80"></div>' +
+            '<div class="field"><label for="bp-region">Region</label><input type="text" id="bp-region" value="' + esc(c.address_region || '') + '" maxlength="80"></div>' +
+            '<div class="field"><label for="bp-country">Country</label><input type="text" id="bp-country" value="' + esc(c.address_country || '') + '" maxlength="80"></div>' +
+          '</div>' +
+          '<div class="field"><label for="bp-map">Map link (optional)</label><input type="url" id="bp-map" value="' + esc(c.map_url || '') + '" placeholder="https://maps.google.com/..."><span class="form-note">Must start with http:// or https://. Leave blank to hide the map link.</span></div>' +
+          '<h3 style="margin:1.4rem 0 .6rem;font-size:1rem">Opening hours</h3>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-days">Days open</label><input type="text" id="bp-days" value="' + esc(c.opening_days || '') + '" maxlength="80" placeholder="Monday to Sunday"></div>' +
+            '<div class="field"><label for="bp-open">Opens (24h)</label><input type="time" id="bp-open" value="' + esc(c.opening_open || '') + '"></div>' +
+            '<div class="field"><label for="bp-close">Closes (24h)</label><input type="time" id="bp-close" value="' + esc(c.opening_close || '') + '"></div>' +
+          '</div>' +
+          '<div class="field"><label for="bp-hours-note">Hours note</label><input type="text" id="bp-hours-note" value="' + esc(c.opening_note || '') + '" maxlength="200" placeholder="Messages are answered during opening hours."></div>' +
+          '<h3 style="margin:1.4rem 0 .6rem;font-size:1rem">Social accounts</h3>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-ig">Instagram</label><input type="url" id="bp-ig" value="' + esc(c.social_instagram || '') + '" placeholder="https://instagram.com/..."></div>' +
+            '<div class="field"><label for="bp-fb">Facebook</label><input type="url" id="bp-fb" value="' + esc(c.social_facebook || '') + '" placeholder="https://facebook.com/..."></div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label for="bp-tt">TikTok</label><input type="url" id="bp-tt" value="' + esc(c.social_tiktok || '') + '" placeholder="https://tiktok.com/@..."></div>' +
+            '<div class="field"><label for="bp-x">X (Twitter)</label><input type="url" id="bp-x" value="' + esc(c.social_x || '') + '" placeholder="https://x.com/..."></div>' +
+            '<div class="field"><label for="bp-yt">YouTube</label><input type="url" id="bp-yt" value="' + esc(c.social_youtube || '') + '" placeholder="https://youtube.com/@..."></div>' +
+          '</div>' +
+          '<p class="form-note">A social account left blank is hidden from the site instead of showing a dead link.</p>' +
+          '<button type="button" class="btn btn--gold" id="bp-save">Save business profile</button>' +
+          '<p class="form-note" id="bp-save-note"></p>' +
+        '</div>' +
+
         '<div class="panel">' +
           '<h2>Payment and order rules</h2>' +
           '<div class="field-row">' +
@@ -2057,6 +2106,73 @@
           loadPayments();
         });
       });
+
+      /* ---- business profile --------------------------------------
+         One save writes the whole contact block. The database validates each
+         field and returns a specific code when one is wrong, so the message
+         here says which field to fix instead of "save failed". */
+      var bpSave = document.getElementById('bp-save');
+      if (bpSave) {
+        bpSave.addEventListener('click', function () {
+          var note = document.getElementById('bp-save-note');
+          function v(id) {
+            var n = document.getElementById(id);
+            return n ? String(n.value || '').trim() : '';
+          }
+          bpSave.disabled = true;
+          if (note) note.textContent = 'Saving\u2026';
+          api('/api/admin/settings', {
+            method: 'PATCH',
+            body: {
+              business_name: v('bp-name'),
+              business_tagline: v('bp-tagline'),
+              business_phone: v('bp-phone'),
+              business_phone_display: v('bp-phone-display'),
+              business_email: v('bp-email'),
+              whatsapp_contact: v('bp-wa'),
+              whatsapp_message: v('bp-wa-msg'),
+              address_line1: v('bp-addr1'),
+              address_line2: v('bp-addr2'),
+              address_city: v('bp-city'),
+              address_region: v('bp-region'),
+              address_country: v('bp-country'),
+              map_url: v('bp-map'),
+              opening_days: v('bp-days'),
+              opening_open: v('bp-open'),
+              opening_close: v('bp-close'),
+              opening_note: v('bp-hours-note'),
+              social: {
+                instagram: v('bp-ig'),
+                facebook: v('bp-fb'),
+                tiktok: v('bp-tt'),
+                x: v('bp-x'),
+                youtube: v('bp-yt')
+              }
+            }
+          }).then(function (d) {
+            bpSave.disabled = false;
+            if (!d || !d.ok) {
+              var msg = (d && d.error) || 'The business profile could not be saved.';
+              if (note) { note.textContent = msg; note.style.color = '#e2685f'; }
+              return;
+            }
+            if (note) {
+              note.textContent = 'Saved. The website will show the new details on the next page load.';
+              note.style.color = '';
+            }
+            /* Refresh the public contact cache so this browser sees the change
+               immediately rather than after a hard reload. */
+            if (window.MB && window.MB.contact && typeof window.MB.contact.load === 'function') {
+              window.MB.contact.load({ force: true });
+            }
+            flash('ok', 'Business profile saved. Header, footer, Contact page and every WhatsApp link now use these details.');
+            loadPayments();
+          }).catch(function () {
+            bpSave.disabled = false;
+            if (note) { note.textContent = 'The baker database could not be reached. Try again.'; note.style.color = '#e2685f'; }
+          });
+        });
+      }
     });
   }
 
