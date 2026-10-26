@@ -4,7 +4,7 @@
 // Handles privileged user management operations (create, invite, update_role,
 // set_status, reset_password, remove) using the server-side service_role key
 // after strictly verifying that the caller is the active primary Super
-// Administrator (mysterybakebite@gmail.com).
+// Administrator (mysterybakebites@gmail.com).
 //
 // Deploy with:
 //   supabase functions deploy admin-users
@@ -12,7 +12,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-const PRIMARY_SUPER_ADMIN_EMAIL = 'mysterybakebite@gmail.com';
+const PRIMARY_SUPER_ADMIN_EMAIL = 'mysterybakebites@gmail.com';
 const ALLOWED_ROLES = ['administrator', 'manager', 'viewer'] as const;
 
 const corsHeaders = {

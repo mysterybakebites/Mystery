@@ -395,7 +395,7 @@ and any confirmation of a `> GH₵ 700.00` order that is not `payment_verified`.
     GitHub repository secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY`. The
     `service_role` key must never be added to the repository or to `config.js`.
 11. **Create the Super Administrator** — Dashboard → Authentication → Users → *Add user*
-    with `mysterybakebite@gmail.com`. The `on_auth_user_created_super_admin` trigger
+    with `mysterybakebites@gmail.com`. The `on_auth_user_created_super_admin` trigger
     enrols it as `super_admin` with `must_change_password = true`; the first sign-in
     forces a password change.
 12. **Testing** — repeat the two-account IDOR tests in §9 against a *staging* project

@@ -41,7 +41,7 @@ function t(name, cond, extra) {
   else { failed++; console.log('FAIL  ' + name + (extra ? '  -> ' + extra : '')); }
 }
 
-const EMAIL = 'mysterybakebite@gmail.com';
+const EMAIL = 'mysterybakebites@gmail.com';
 const TEMP = 'Temp-Start-2026!';
 const NEWPW = 'Kitchen-Oven-42!x';
 

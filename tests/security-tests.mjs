@@ -400,8 +400,8 @@ async function main() {
      --------------------------------------------------------------- */
   /* Same database, separate browser session: exactly how two users meet Supabase. */
   const adminEnv = makeEnv({}, sharedDb);
-  await adminEnv.MB.provisionSuperAdmin('mysterybakebite@gmail.com', 'SuperBakebite#2026');
-  const adminLogin = await adminEnv.MB.signIn('mysterybakebite@gmail.com', 'SuperBakebite#2026', true);
+  await adminEnv.MB.provisionSuperAdmin('mysterybakebites@gmail.com', 'SuperBakebite#2026');
+  const adminLogin = await adminEnv.MB.signIn('mysterybakebites@gmail.com', 'SuperBakebite#2026', true);
   truthy('Super Administrator can sign in (local fallback)', adminLogin.ok === true, JSON.stringify(adminLogin));
   truthy('Super Administrator is forced to change the temporary password', adminLogin.mustChangePassword === true);
   const pwdChange = await adminEnv.MB.completeFirstLoginPassword('SuperBakebite#2026', 'SuperBakebite#2027');

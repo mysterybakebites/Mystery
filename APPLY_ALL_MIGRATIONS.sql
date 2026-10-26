@@ -198,8 +198,8 @@ CREATE TABLE IF NOT EXISTS public.admin_users (
   invited_by              TEXT,
   created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT chk_super_admin_email CHECK (
-    (role = 'super_admin' AND lower(email) = 'mysterybakebite@gmail.com' AND is_primary_super_admin = TRUE)
-    OR (role <> 'super_admin' AND lower(email) <> 'mysterybakebite@gmail.com' AND is_primary_super_admin = FALSE)
+    (role = 'super_admin' AND lower(email) = 'mysterybakebites@gmail.com' AND is_primary_super_admin = TRUE)
+    OR (role <> 'super_admin' AND lower(email) <> 'mysterybakebites@gmail.com' AND is_primary_super_admin = FALSE)
   ),
   CONSTRAINT chk_no_demo_accounts CHECK (
     lower(email) <> 'demo.admin@mysterybakebite.com'
@@ -309,7 +309,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_unique_payment_ref
 -- 2. Super Administrator Provisioning & Protection Triggers
 -- -----------------------------------------------------------------------------
 
--- Automatically enroll mysterybakebite@gmail.com as primary Super Administrator
+-- Automatically enroll mysterybakebites@gmail.com as primary Super Administrator
 -- when created in Supabase Auth, with mandatory first-login password change.
 CREATE OR REPLACE FUNCTION public.trg_auto_provision_super_admin()
 RETURNS TRIGGER
@@ -318,7 +318,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  IF lower(trim(NEW.email)) = 'mysterybakebite@gmail.com' THEN
+  IF lower(trim(NEW.email)) = 'mysterybakebites@gmail.com' THEN
     INSERT INTO public.admin_users (
       user_id,
       email,
@@ -329,7 +329,7 @@ BEGIN
       must_change_password
     ) VALUES (
       NEW.id,
-      'mysterybakebite@gmail.com',
+      'mysterybakebites@gmail.com',
       'Mystery Bakebite (Super Admin)',
       'super_admin',
       TRUE,
@@ -345,8 +345,8 @@ BEGIN
     INSERT INTO public.admin_audit_log (action, actor_email, target_email, details)
     VALUES (
       'super_admin_provisioned',
-      'mysterybakebite@gmail.com',
-      'mysterybakebite@gmail.com',
+      'mysterybakebites@gmail.com',
+      'mysterybakebites@gmail.com',
       'Primary Super Administrator enrolled via Supabase Auth (mandatory first-login password change active)'
     );
   END IF;
@@ -360,7 +360,7 @@ CREATE TRIGGER on_auth_user_created_super_admin
   FOR EACH ROW
   EXECUTE FUNCTION public.trg_auto_provision_super_admin();
 
--- Protect mysterybakebite@gmail.com from accidental deletion, deactivation, or role downgrade
+-- Protect mysterybakebites@gmail.com from accidental deletion, deactivation, or role downgrade
 CREATE OR REPLACE FUNCTION public.trg_protect_primary_super_admin()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -369,27 +369,27 @@ SET search_path = public
 AS $$
 BEGIN
   IF TG_OP = 'DELETE' THEN
-    IF lower(OLD.email) = 'mysterybakebite@gmail.com' OR OLD.is_primary_super_admin THEN
-      RAISE EXCEPTION 'The primary Super Administrator (mysterybakebite@gmail.com) cannot be removed.'
+    IF lower(OLD.email) = 'mysterybakebites@gmail.com' OR OLD.is_primary_super_admin THEN
+      RAISE EXCEPTION 'The primary Super Administrator (mysterybakebites@gmail.com) cannot be removed.'
         USING ERRCODE = '42501';
     END IF;
     RETURN OLD;
   END IF;
 
   IF TG_OP = 'UPDATE' THEN
-    IF lower(OLD.email) = 'mysterybakebite@gmail.com' OR OLD.is_primary_super_admin THEN
-      IF lower(NEW.email) <> 'mysterybakebite@gmail.com'
+    IF lower(OLD.email) = 'mysterybakebites@gmail.com' OR OLD.is_primary_super_admin THEN
+      IF lower(NEW.email) <> 'mysterybakebites@gmail.com'
          OR NEW.role <> 'super_admin'
          OR NEW.is_primary_super_admin IS DISTINCT FROM TRUE
          OR NEW.active IS DISTINCT FROM TRUE THEN
-        RAISE EXCEPTION 'The primary Super Administrator (mysterybakebite@gmail.com) cannot be demoted, deactivated, or reassigned.'
+        RAISE EXCEPTION 'The primary Super Administrator (mysterybakebites@gmail.com) cannot be demoted, deactivated, or reassigned.'
           USING ERRCODE = '42501';
       END IF;
     END IF;
   END IF;
 
-  IF lower(NEW.email) <> 'mysterybakebite@gmail.com' AND (NEW.role = 'super_admin' OR NEW.is_primary_super_admin) THEN
-    RAISE EXCEPTION 'The super_admin role is exclusively reserved for mysterybakebite@gmail.com.'
+  IF lower(NEW.email) <> 'mysterybakebites@gmail.com' AND (NEW.role = 'super_admin' OR NEW.is_primary_super_admin) THEN
+    RAISE EXCEPTION 'The super_admin role is exclusively reserved for mysterybakebites@gmail.com.'
       USING ERRCODE = '42501';
   END IF;
 
@@ -435,7 +435,7 @@ AS $$
     SELECT 1
     FROM public.admin_users a
     WHERE a.user_id = auth.uid()
-      AND lower(a.email) = 'mysterybakebite@gmail.com'
+      AND lower(a.email) = 'mysterybakebites@gmail.com'
       AND a.role = 'super_admin'
       AND a.is_primary_super_admin = TRUE
       AND a.active = TRUE
@@ -620,7 +620,7 @@ BEGIN
     'verify', v_admin.role IN ('super_admin', 'administrator', 'manager'),
     'catalogue', v_admin.role IN ('super_admin', 'administrator', 'manager'),
     'settings', v_admin.role IN ('super_admin', 'administrator'),
-    'team', v_admin.role = 'super_admin' AND lower(v_admin.email) = 'mysterybakebite@gmail.com'
+    'team', v_admin.role = 'super_admin' AND lower(v_admin.email) = 'mysterybakebites@gmail.com'
   );
 
   RETURN jsonb_build_object(
@@ -630,7 +630,7 @@ BEGIN
     'email', v_admin.email,
     'name', v_admin.name,
     'role', v_admin.role,
-    'isSuperAdmin', (v_admin.role = 'super_admin' AND lower(v_admin.email) = 'mysterybakebite@gmail.com'),
+    'isSuperAdmin', (v_admin.role = 'super_admin' AND lower(v_admin.email) = 'mysterybakebites@gmail.com'),
     'isPrimarySuperAdmin', v_admin.is_primary_super_admin,
     'mustChangePassword', v_admin.must_change_password,
     'permissions', v_perms
@@ -732,7 +732,7 @@ BEGIN
     INTO v_admins
     FROM public.admin_users a;
 
-    IF v_caller.role = 'super_admin' AND lower(v_caller.email) = 'mysterybakebite@gmail.com' THEN
+    IF v_caller.role = 'super_admin' AND lower(v_caller.email) = 'mysterybakebites@gmail.com' THEN
       SELECT coalesce(jsonb_agg(jsonb_build_object(
         'id', l.id,
         'action', l.action,
@@ -750,8 +750,8 @@ BEGIN
     RETURN jsonb_build_object(
       'ok', TRUE,
       'admins', v_admins,
-      'canManageTeam', (v_caller.role = 'super_admin' AND lower(v_caller.email) = 'mysterybakebite@gmail.com'),
-      'primarySuperAdminEmail', 'mysterybakebite@gmail.com',
+      'canManageTeam', (v_caller.role = 'super_admin' AND lower(v_caller.email) = 'mysterybakebites@gmail.com'),
+      'primarySuperAdminEmail', 'mysterybakebites@gmail.com',
       'auditLog', v_logs
     );
   END IF;
@@ -761,7 +761,7 @@ BEGIN
     RETURN jsonb_build_object(
       'ok', FALSE,
       'code', 'forbidden',
-      'error', 'Only the primary Super Administrator (mysterybakebite@gmail.com) is authorized to manage user accounts and roles.'
+      'error', 'Only the primary Super Administrator (mysterybakebites@gmail.com) is authorized to manage user accounts and roles.'
     );
   END IF;
 
@@ -772,11 +772,11 @@ BEGIN
     RETURN jsonb_build_object('ok', FALSE, 'code', 'not_found', 'error', 'Target user account was not found.');
   END IF;
 
-  IF lower(v_target.email) = 'mysterybakebite@gmail.com' OR v_target.is_primary_super_admin THEN
+  IF lower(v_target.email) = 'mysterybakebites@gmail.com' OR v_target.is_primary_super_admin THEN
     RETURN jsonb_build_object(
       'ok', FALSE,
       'code', 'super_admin_protected',
-      'error', 'The primary Super Administrator (mysterybakebite@gmail.com) is protected and cannot be modified, demoted, deactivated, or removed.'
+      'error', 'The primary Super Administrator (mysterybakebites@gmail.com) is protected and cannot be modified, demoted, deactivated, or removed.'
     );
   END IF;
 
@@ -4101,7 +4101,7 @@ BEGIN
     business_name          = 'Mystery Bakebite',
     business_phone         = '233554520532',
     business_phone_display = '+233 55 452 0532',
-    business_email         = 'mysterybakebite@gmail.com',
+    business_email         = 'mysterybakebites@gmail.com',
     whatsapp_contact       = '233554520532',
     whatsapp_message       = 'Hello Mystery Bakebite, I''d like to place an order.',
     address_city           = 'Tamale',

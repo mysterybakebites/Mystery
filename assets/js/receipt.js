@@ -316,7 +316,7 @@
 
     var contactParts = [
       '+233 55 452 0532',
-      'mysterybakebite@gmail.com',
+      'mysterybakebites@gmail.com',
       '@mysterybakebites'
     ];
     if (cfg.email && contactParts.indexOf(cfg.email) === -1) contactParts.push(esc(cfg.email));

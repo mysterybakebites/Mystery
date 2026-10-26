@@ -34,7 +34,7 @@ window.MB = window.MB || {};
   var ANON = String(CFG.anonKey || readMetaConfig('supabase-anon-key') || '');
   var SESSION_KEY = 'mb-session-v1';
   var TIMEOUT = 25000;
-  var PRIMARY_SUPER_ADMIN_EMAIL = 'mysterybakebite@gmail.com';
+  var PRIMARY_SUPER_ADMIN_EMAIL = 'mysterybakebites@gmail.com';
   MB.PRIMARY_SUPER_ADMIN_EMAIL = PRIMARY_SUPER_ADMIN_EMAIL;
 
   /* Security Guard 1: Enforce HTTPS on remote Supabase URL (except localhost) */
@@ -262,7 +262,7 @@ window.MB = window.MB || {};
       business_tagline: 'Home bakery & baking school',
       business_phone: '233554520532',
       business_phone_display: '+233 55 452 0532',
-      business_email: 'mysterybakebite@gmail.com',
+      business_email: 'mysterybakebites@gmail.com',
       whatsapp_contact: '233554520532',
       whatsapp_message: "Hello Mystery Bakebite, I'd like to place an order.",
       whatsapp_number: '',
@@ -3160,7 +3160,7 @@ window.MB = window.MB || {};
     });
   };
 
-  /** Inspect whether the primary Super Administrator (mysterybakebite@gmail.com) has been provisioned. */
+  /** Inspect whether the primary Super Administrator (mysterybakebites@gmail.com) has been provisioned. */
   MB.getSuperAdminSetupStatus = function () {
     var db = loadLocalDb();
     var primary = (db.admins || []).filter(function (a) {
@@ -3176,7 +3176,7 @@ window.MB = window.MB || {};
   };
 
   /**
-   * First-time provisioning of the primary Super Administrator (mysterybakebite@gmail.com).
+   * First-time provisioning of the primary Super Administrator (mysterybakebites@gmail.com).
    * Never uses hardcoded passwords: generates a one-time cryptographic temporary password
    * (or accepts an initial setup password) and enforces a mandatory password change on first login.
    */
@@ -4853,7 +4853,7 @@ window.MB = window.MB || {};
     hLine(14, 283.64, 385, 0.5, 212, 164, 55);
     text('F2', 4.6, 14, 393.5, 'AUTHENTIC MYSTERY BAKEBITE ORDER RECEIPT', 31, 16, 8);
     text('F1', 4.2, 14, 400.5, 'Because every bite has a story | Tamale, Northern Region, Ghana', 96, 76, 58);
-    textRight('F2', 4.3, 283.5, 393.5, '+233 55 452 0532 | mysterybakebite@gmail.com', 96, 76, 58);
+    textRight('F2', 4.3, 283.5, 393.5, '+233 55 452 0532 | mysterybakebites@gmail.com', 96, 76, 58);
     textRight('F1', 4.1, 283.5, 400.5, 'Keep reference ' + order.ref + ' safe. Thank you for your order!', 122, 90, 43);
 
     var contentStreamBytes = asciiBytes(ops.join('\n'));

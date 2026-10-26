@@ -111,7 +111,7 @@
     if (st && !st.isProvisioned) {
       box.hidden = false;
       var loginUser = document.getElementById('login-user');
-      if (loginUser && !loginUser.value) loginUser.value = st.email || 'mysterybakebite@gmail.com';
+      if (loginUser && !loginUser.value) loginUser.value = st.email || 'mysterybakebites@gmail.com';
     } else {
       box.hidden = true;
     }
@@ -179,7 +179,7 @@
     el.app.hidden = true;
     el.app.setAttribute('aria-hidden', 'true');
     state.mustChangePassword = true;
-    state.email = info.email || state.email || (MB.user() && MB.user().email) || 'mysterybakebite@gmail.com';
+    state.email = info.email || state.email || (MB.user() && MB.user().email) || 'mysterybakebites@gmail.com';
     state.role = info.role || state.role || 'super_admin';
     var emEl = document.getElementById('first-login-email');
     var rlEl = document.getElementById('first-login-role');
@@ -304,7 +304,7 @@
     if (typeof MB.provisionSuperAdmin !== 'function') return;
     var btn = document.getElementById('btn-provision-super-admin');
     if (btn) { btn.disabled = true; btn.textContent = 'Generating temporary credential\u2026'; }
-    MB.provisionSuperAdmin('mysterybakebite@gmail.com').then(function (res) {
+    MB.provisionSuperAdmin('mysterybakebites@gmail.com').then(function (res) {
       if (btn) { btn.disabled = false; btn.textContent = 'Generate Temporary First-Login Password'; }
       if (!res || !res.ok) {
         signInError((res && res.error) || 'Could not provision Super Administrator account.');
@@ -316,7 +316,7 @@
       var passInp = document.getElementById('login-pass');
       if (codeEl) codeEl.textContent = res.temporaryPassword || '';
       if (outBox) outBox.hidden = false;
-      if (userInp) userInp.value = res.email || 'mysterybakebite@gmail.com';
+      if (userInp) userInp.value = res.email || 'mysterybakebites@gmail.com';
       if (passInp) passInp.value = res.temporaryPassword || '';
       if (btn) btn.hidden = true;
     });
@@ -2228,7 +2228,7 @@
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
           '<div>' +
             '<p class="eyebrow" style="margin:0 0 4px;color:var(--gold)">Primary Super Administrator Authority</p>' +
-            '<h3 style="margin:0 0 4px;font-size:1.1rem;color:var(--cream)">mysterybakebite@gmail.com <span class="badge badge--amber" style="margin-left:6px">Super Administrator</span> <span class="badge badge--green" style="margin-left:4px">Protected Owner</span></h3>' +
+            '<h3 style="margin:0 0 4px;font-size:1.1rem;color:var(--cream)">mysterybakebites@gmail.com <span class="badge badge--amber" style="margin-left:6px">Super Administrator</span> <span class="badge badge--green" style="margin-left:4px">Protected Owner</span></h3>' +
             '<p class="panel__hint" style="margin:0">Exclusively authorized to create, invite, assign roles, reset passwords, deactivate, and remove dashboard accounts. Protected against accidental removal or privilege downgrade.</p>' +
           '</div>' +
         '</div>' +
@@ -2318,11 +2318,11 @@
       if (createPanel && !canManage) {
         createPanel.innerHTML =
           '<h3 class="panel__title">Super Administrator Exclusive</h3>' +
-          '<p class="panel__hint">Only the primary Super Administrator (<b>mysterybakebite@gmail.com</b>) can create, invite, modify roles, reset passwords, or remove dashboard accounts.</p>';
+          '<p class="panel__hint">Only the primary Super Administrator (<b>mysterybakebites@gmail.com</b>) can create, invite, modify roles, reset passwords, or remove dashboard accounts.</p>';
       }
 
       var rows = (d.admins || []).map(function (a) {
-        var isPrimary = !!a.isPrimarySuperAdmin || String(a.email || '').toLowerCase() === 'mysterybakebite@gmail.com';
+        var isPrimary = !!a.isPrimarySuperAdmin || String(a.email || '').toLowerCase() === 'mysterybakebites@gmail.com';
         var me = MB.user() && (MB.user().id === a.userId || String(MB.user().email || '').toLowerCase() === String(a.email || '').toLowerCase());
         var rBadgeCls = a.role === 'super_admin' ? 'badge--amber' : (a.role === 'administrator' ? 'badge--blue' : (a.role === 'manager' ? 'badge--blush' : 'badge--grey'));
         var statusHtml = a.active === false
@@ -2445,7 +2445,7 @@
       if (auditHost) {
         var logs = Array.isArray(d.auditLog) ? d.auditLog : [];
         if (!canManage) {
-          auditHost.innerHTML = '<p class="panel__hint">Security audit logs are restricted to the Super Administrator (mysterybakebite@gmail.com).</p>';
+          auditHost.innerHTML = '<p class="panel__hint">Security audit logs are restricted to the Super Administrator (mysterybakebites@gmail.com).</p>';
         } else if (!logs.length) {
           auditHost.innerHTML = '<p class="panel__hint">No administrative security events recorded yet.</p>';
         } else {

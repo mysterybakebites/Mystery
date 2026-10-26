@@ -40,7 +40,7 @@
     tagline: 'Home bakery & baking school',
     phone: '233554520532',
     phoneDisplay: '+233 55 452 0532',
-    email: 'mysterybakebite@gmail.com',
+    email: 'mysterybakebites@gmail.com',
     whatsapp: '233554520532',
     whatsappMessage: "Hello Mystery Bakebite, I'd like to place an order.",
     alerts: '233554520532',

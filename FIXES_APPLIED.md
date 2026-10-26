@@ -37,13 +37,42 @@ TOTAL                     949 passed, 0 failed
    transaction.
 2. Deploy the Edge Functions (`admin-users`, `notify-order --no-verify-jwt`)
    and set the WhatsApp secrets for automatic baker alerts.
-3. Create the Super Administrator auth user — **confirm first** whether the
-   correct inbox is `mysterybakebite@gmail.com` (used in all 72 places in
-   this code and hard-coded in a database CHECK constraint) or
-   `mysterybakebites@gmail.com` (your Google account / Instagram spelling).
+3. Create the Super Administrator auth user `mysterybakebites@gmail.com`
+   (owner-confirmed 2026-10-26; the whole codebase + SQL were corrected
+   from the old `mysterybakebite@gmail.com` spelling in v2.4 — see the
+   section below and run `RUN_FIRST_email_correction_patch.sql` first).
 4. Set Supabase Auth Site URL + redirect URLs to the real deployed URL,
    push to GitHub `main`, enable Pages (source: GitHub Actions), then run
    the end-to-end smoke test in the audit report.
 5. Restrict the public "anyone with the link" sharing on the backup zip in
    Google Drive (it contains the full database schema and audit reports;
    no secret keys were found in it).
+
+---
+
+## v2.4 (26 Oct 2026, later the same day) — Super Administrator email correction
+
+The owner confirmed the real inbox is **`mysterybakebites@gmail.com`**
+(with "s" — same spelling as the Google account, GitHub user and
+Instagram). Every occurrence of the old `mysterybakebite@gmail.com` was
+corrected across JS, HTML, both SQL files, the test suites and the docs
+(86 replacements; full suite re-run: 949 passed).
+
+**Database run order is now:**
+
+1. `RUN_FIRST_email_correction_patch.sql` — fixes the live
+   `chk_super_admin_email` constraint created by the already-applied
+   migration 20261022 (re-running APPLY_ALL alone cannot change a
+   constraint on a table that already exists) and renames any existing
+   admin row. Idempotent; one transaction.
+2. `APPLY_ALL_MIGRATIONS.sql` (corrected in this package).
+3. Verify no database function still mentions the old spelling:
+   `SELECT proname FROM pg_proc WHERE prosrc ILIKE '%mysterybakebite@gmail.com%';`
+   must return **0 rows**.
+4. Only then create the Auth user `mysterybakebites@gmail.com` — the
+   auto-provision trigger enrols it as primary Super Administrator.
+
+WhatsApp strategy (owner decision): launch with the one-tap WhatsApp
+fallback button, add Meta Cloud API automation later. With the fallback,
+neither Edge Function blocks launch; `admin-users` is only needed when
+staff accounts are added.

@@ -67,7 +67,7 @@ BEGIN
     business_name          = 'Mystery Bakebite',
     business_phone         = '233554520532',
     business_phone_display = '+233 55 452 0532',
-    business_email         = 'mysterybakebite@gmail.com',
+    business_email         = 'mysterybakebites@gmail.com',
     whatsapp_contact       = '233554520532',
     whatsapp_message       = 'Hello Mystery Bakebite, I''d like to place an order.',
     address_city           = 'Tamale',

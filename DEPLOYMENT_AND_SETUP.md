@@ -1,41 +1,41 @@
 # Mystery Bakebite — Production Setup, Supabase Integration & GitHub Pages Deployment Guide
 
-This document covers the complete production setup for the **Mystery Bakebite** web application, including **Super Administrator (`mysterybakebite@gmail.com`) provisioning**, **User & Role Management (RBAC)**, **Supabase database & Edge Function deployment**, and **GitHub Pages hosting**.
+This document covers the complete production setup for the **Mystery Bakebite** web application, including **Super Administrator (`mysterybakebites@gmail.com`) provisioning**, **User & Role Management (RBAC)**, **Supabase database & Edge Function deployment**, and **GitHub Pages hosting**.
 
 ---
 
-## 1. Super Administrator Account (`mysterybakebite@gmail.com`)
+## 1. Super Administrator Account (`mysterybakebites@gmail.com`)
 
 ### Exclusive Super Administrator Authority
-- **`mysterybakebite@gmail.com`** is configured as the primary **Super Administrator** (`role = 'super_admin'`, `is_primary_super_admin = TRUE`).
+- **`mysterybakebites@gmail.com`** is configured as the primary **Super Administrator** (`role = 'super_admin'`, `is_primary_super_admin = TRUE`).
 - **No Hard-Coded Passwords**: Zero passwords or password digests are hard-coded in frontend code, configuration files, or Git history. All legacy demo accounts (`demo.admin@mysterybakebite.com`) and sample transactions have been permanently removed.
 - **Database-Level Immutability Protection**:
-  - PostgreSQL trigger `public.trg_protect_primary_super_admin` and backend checks in `api_admin_team` and `supabase/functions/admin-users/index.ts` guarantee that `mysterybakebite@gmail.com` **cannot** be removed, deactivated, or demoted to a lower role, and no other user can be assigned `super_admin`.
+  - PostgreSQL trigger `public.trg_protect_primary_super_admin` and backend checks in `api_admin_team` and `supabase/functions/admin-users/index.ts` guarantee that `mysterybakebites@gmail.com` **cannot** be removed, deactivated, or demoted to a lower role, and no other user can be assigned `super_admin`.
 
 ### First-Login Provisioning & Mandatory Password Change
 1. **With Supabase Auth Connected**:
-   - Create the user `mysterybakebite@gmail.com` in **Supabase Dashboard → Authentication → Users → Add User** with a one-time temporary password (or via the First-Time Setup card on `admin.html`).
-   - Database trigger `public.trg_auto_provision_super_admin` automatically registers `mysterybakebite@gmail.com` in `public.admin_users` with:
+   - Create the user `mysterybakebites@gmail.com` in **Supabase Dashboard → Authentication → Users → Add User** with a one-time temporary password (or via the First-Time Setup card on `admin.html`).
+   - Database trigger `public.trg_auto_provision_super_admin` automatically registers `mysterybakebites@gmail.com` in `public.admin_users` with:
      - `role = 'super_admin'`
      - `is_primary_super_admin = TRUE`
      - `active = TRUE`
      - `must_change_password = TRUE`
 2. **Standalone / First-Time Browser Provisioning**:
-   - Open `admin.html`. When `mysterybakebite@gmail.com` has not yet been initialized, the **First-Time Super Administrator Setup** card appears automatically.
+   - Open `admin.html`. When `mysterybakebites@gmail.com` has not yet been initialized, the **First-Time Super Administrator Setup** card appears automatically.
    - Click **Generate Temporary First-Login Password** to generate a cryptographically random one-time temporary password (`MB-...`).
 3. **Mandatory First-Login Password Change Gate**:
-   - Sign in on `admin.html` as `mysterybakebite@gmail.com` using the temporary password.
+   - Sign in on `admin.html` as `mysterybakebites@gmail.com` using the temporary password.
    - The application immediately routes to the **Mandatory First-Login Password Change** screen (`#admin-first-login`) and blocks all dashboard data RPCs (`code: 'password_change_required'`) until a strong personal password (minimum 10 characters with uppercase, lowercase, number, and symbol) is saved.
 
 ---
 
 ## 2. Administrator & User Management (RBAC)
 
-Once signed in and after completing the mandatory first-login password change, `mysterybakebite@gmail.com` can manage all staff accounts from **Admin Dashboard → Team & Access Control**:
+Once signed in and after completing the mandatory first-login password change, `mysterybakebites@gmail.com` can manage all staff accounts from **Admin Dashboard → Team & Access Control**:
 
 | Role | Slug | Permissions |
 | :--- | :--- | :--- |
-| **Super Administrator** | `super_admin` | Exclusive to `mysterybakebite@gmail.com`. Full access to all sections + exclusive authority to create, invite, assign roles, reset passwords, activate/deactivate, and remove users, plus view the Security Audit Log. |
+| **Super Administrator** | `super_admin` | Exclusive to `mysterybakebites@gmail.com`. Full access to all sections + exclusive authority to create, invite, assign roles, reset passwords, activate/deactivate, and remove users, plus view the Security Audit Log. |
 | **Administrator** | `administrator` | Full operational access to Overview, Orders & Bookings, Payment Verification, Products, Classes, Cake Pricing, Discounts, Notifications, and Payout Settings. Read-only view of Team roster. |
 | **Order & Kitchen Manager** | `manager` | Operational access to Overview, Orders & Bookings, Payment Verification, Products, Classes, Cake Pricing, Discounts, and Notifications. Cannot modify bank/MoMo payout settings or manage Team accounts. |
 | **Read-Only Viewer** | `viewer` | Read-only access to Overview, Orders & Bookings, Receipts, and Notifications. Cannot modify orders, verify payments, edit catalogue/settings, or manage users. |
